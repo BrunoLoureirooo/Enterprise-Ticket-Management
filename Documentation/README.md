@@ -67,50 +67,43 @@ Interactive API documentation (Swagger UI) is available at:
 Enterprise-Ticket-Management/
 ├── backend/
 │   ├── src/
-│   │   ├── API/                          
-│   │   │   ├── Controllers/              # Presentation layer (Controllers, Middleware)
+│   │   ├── API/
+│   │   │   ├── Controllers/              # Presentation layer
+│   │   │   ├── DataTransferObjects/      # DTOs
 │   │   │   └── Program.cs
 │   │   │
-│   │   ├── Application/                  
+│   │   ├── Application/
 │   │   │   ├── Services/                 # Business logic layer
 │   │   │   ├── Interfaces/               # Service contracts
-│   │   │   ├── DTOs/                     # Request/Response models
 │   │   │   └── Validators/               # FluentValidation
 │   │   │
 │   │   ├── Domain/                       # Core business entities
-│   │   │   ├── Entities/                 # Your domain models (Ticket, User, etc.)
-│   │   │   └── Interfaces/               # Repository contracts
+│   │   │   └── Entities/                 # Domain models
 │   │   │
 │   │   └── Infrastructure/               # External concerns
 │   │       ├── Data/
 │   │       │   ├── Repositories/         # Data access layer
-│   │       │   ├── Configurations/       # EF Core entity configs
-│   │       │   └── ApplicationDbContext.cs
+│   │       │   └── Configurations/       # EF Core configurations
 │   │       │
-│   │       ├── Migrations/               # EF Core migrations
-│   │       └── Authentication/           # JWT implementation
+│   │       └── Migrations/               # EF Core migrations
 │   │
 │   └── tests/                            # Test projects
 │       ├── API.Tests/
 │       ├── Application.Tests/
 │       └── Infrastructure.Tests/
 │
-├── Common/                                 # Common code for backend and frontend
-│   └── DTOs/                               # Data Transfer Objects
-│
 ├── frontend/
 │   └── src/
-│      ├── app/
-│      │   └── core/                   
-│      │       └── services/
-│      │           └── Contracts/
-│      │
-│      ├── features/  
-│      │   └── auth/
-│      │
-│      └── shared/                          # Reusable components/pipes/directives
-│          ├── components/
-│          └── viewModels/
-│   
-└── README.md                              # Project documentation
+│      └── app/
+│          ├── core/
+│          │   └── services/
+│          │
+│          ├── features/
+│          │   └── auth/
+│          │
+│          └── shared/
+│              ├── components/
+│              └── viewModels/
+│
+└── Documentation/                          # Project documentation
 ```
