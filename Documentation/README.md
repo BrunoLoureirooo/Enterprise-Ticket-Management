@@ -73,37 +73,27 @@ Enterprise-Ticket-Management/
 │   │   │   └── Program.cs
 │   │   │
 │   │   ├── Application/
-│   │   │   ├── Services/                 # Business logic layer
 │   │   │   ├── Interfaces/               # Service contracts
+│   │   │   ├── Services/                 # Business logic layer
 │   │   │   └── Validators/               # FluentValidation
 │   │   │
 │   │   ├── Domain/                       # Core business entities
 │   │   │   └── Entities/                 # Domain models
 │   │   │
 │   │   └── Infrastructure/               # External concerns
-│   │       ├── Data/
-│   │       │   ├── Repositories/         # Data access layer
-│   │       │   └── Configurations/       # EF Core configurations
-│   │       │
+│   │       ├── Data/                     # Data access layer
 │   │       └── Migrations/               # EF Core migrations
 │   │
 │   └── tests/                            # Test projects
-│       ├── API.Tests/
-│       ├── Application.Tests/
-│       └── Infrastructure.Tests/
 │
 ├── frontend/
 │   └── src/
 │      └── app/
-│          ├── core/
-│          │   └── services/
-│          │
-│          ├── features/
-│          │   └── auth/
-│          │
-│          └── shared/
-│              ├── components/
-│              └── viewModels/
+│          ├── components/                # Reusable UI components
+│          ├── pages/                     # Application pages/views
+│          ├── services/                  # API and state services
+│          ├── app.routes.ts              # Routing configuration
+│          └── app.config.ts              # App configuration
 │
-└── Documentation/                          # Project documentation
+└── Documentation/                        # Project documentation
 ```

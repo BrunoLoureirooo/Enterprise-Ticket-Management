@@ -1,0 +1,41 @@
+<dx-toolbar id="toolbar">
+    <dxi-toolbar-item location="before" widget="dxButton" locateInMenu="auto" [options]="burgerOptions">
+    </dxi-toolbar-item>
+    <dxi-toolbar-item location="center" widget="dxButton" locateInMenu="never">
+        <div *dxTemplate>
+            <div class="toolbar-label"><b>Ticket Management System</b></div>
+        </div>
+    </dxi-toolbar-item>
+</dx-toolbar>
+<dx-drawer template="sidebar" [(opened)]="isOpen" [maxSize]="256" [shading]="false" openedStateMode="shrink"
+    revealMode="slide" position="left" class="flex-1 min-h-0">
+    <div class="h-full">
+        <ng-content></ng-content>
+    </div>
+
+    <div *dxTemplate="let data of 'sidebar'" class="h-full bg-gray-900 text-white flex flex-col">
+        <div class="flex-1 py-4">
+            <dx-list [dataSource]="menuItems" [hoverStateEnabled]="true" [activeStateEnabled]="true"
+                [focusStateEnabled]="false" (onItemClick)="onItemClick($event)" width="256px">
+                <div *dxTemplate="let item of 'item'">
+                    <div class="flex items-center">
+                        <i [class]="item.icon + ' text-xl'" [class.mr-3]="isOpen"></i>
+                        <span class="text-sm font-medium">{{ item.text }}</span>
+                    </div>
+                </div>
+            </dx-list>
+        </div>
+
+        <div class="p-4 border-t border-gray-800">
+            <div class="flex items-center" [class.justify-center]="!isOpen">
+                <img class="h-8 w-8 rounded-full"
+                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                    alt="User">
+                <div class="ml-3 min-w-0" *ngIf="isOpen">
+                    <p class="text-sm font-medium">John Doe</p>
+                    <p class="text-xs text-gray-400">Admin</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</dx-drawer>

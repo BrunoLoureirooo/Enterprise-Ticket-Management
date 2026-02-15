@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Copy solution and project files
-COPY Backend.sln ./
+COPY Backend.slnx ./
 COPY src/API/API.csproj ./src/API/
 COPY src/Application/Application.csproj ./src/Application/
 COPY src/Domain/Domain.csproj ./src/Domain/
