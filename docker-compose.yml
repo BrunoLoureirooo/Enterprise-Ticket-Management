@@ -16,7 +16,7 @@ services:
     networks:
       - ticket-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -60,9 +60,28 @@ services:
       - ticket-network
     restart: unless-stopped
 
+  # pgAdmin Database Management Tool
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: ticket-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - ticket-network
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    restart: unless-stopped
+
 # Persistent storage
 volumes:
   postgres-data:
+    driver: local
+  pgadmin-data:
     driver: local
 
 # Network for service communication

@@ -8,6 +8,9 @@ COPY src/API/API.csproj ./src/API/
 COPY src/Application/Application.csproj ./src/Application/
 COPY src/Domain/Domain.csproj ./src/Domain/
 COPY src/Infrastructure/Infrastructure.csproj ./src/Infrastructure/
+COPY tests/API.Tests/API.Tests.csproj ./tests/API.Tests/
+COPY tests/Application.Tests/Application.Tests.csproj ./tests/Application.Tests/
+COPY tests/Infrastructure.Tests/Infrastructure.Tests.csproj ./tests/Infrastructure.Tests/
 
 # Restore dependencies
 RUN dotnet restore
