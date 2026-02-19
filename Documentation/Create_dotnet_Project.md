@@ -30,3 +30,9 @@ dotnet watch run
 
 # Clean build artifacts
 dotnet clean
+
+# Create Migration
+dotnet ef migrations add [Name] \
+  --project backend/src/Infrastructure/Infrastructure.csproj \
+  --startup-project backend/src/API/API.csproj \
+  --output-dir Migrations

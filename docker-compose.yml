@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: postgres123
       POSTGRES_DB: ticketmanagement
     ports:
-      - "5432:5432"
+      - "5435:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
@@ -21,7 +21,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # ASP.NET Core Backend API (.NET 10)
+  # ASP.NET Core Backend API (.NET 8)
   backend:
     build:
       context: ./backend
@@ -30,7 +30,6 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
       - ConnectionStrings__DefaultConnection=Host=postgres;Database=ticketmanagement;Username=postgres;Password=postgres123
       - JwtSettings__Secret=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
       - JwtSettings__Issuer=TicketManagementAPI
@@ -38,7 +37,6 @@ services:
       - JwtSettings__ExpiryMinutes=60
     ports:
       - "5000:8080"
-      - "5001:8081"
     depends_on:
       postgres:
         condition: service_healthy

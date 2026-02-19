@@ -59,7 +59,7 @@ After running the migrations, you can create an admin user via the API or use th
 ### API Documentation
 
 Interactive API documentation (Swagger UI) is available at:
-`http://localhost:8000/docs`
+`http://localhost:5000/swagger`
 
 ## Project Structure
 

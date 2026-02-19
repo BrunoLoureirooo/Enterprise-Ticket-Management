@@ -1,31 +1,25 @@
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy solution and project files
-COPY Backend.slnx ./
-COPY src/API/API.csproj ./src/API/
-COPY src/Application/Application.csproj ./src/Application/
-COPY src/Domain/Domain.csproj ./src/Domain/
-COPY src/Infrastructure/Infrastructure.csproj ./src/Infrastructure/
-COPY tests/API.Tests/API.Tests.csproj ./tests/API.Tests/
-COPY tests/Application.Tests/Application.Tests.csproj ./tests/Application.Tests/
-COPY tests/Infrastructure.Tests/Infrastructure.Tests.csproj ./tests/Infrastructure.Tests/
+COPY Backend.sln ./
+COPY API/API.csproj ./API/
 
 # Restore dependencies
-RUN dotnet restore
+RUN dotnet restore Backend.sln
 
 # Copy everything else and build
 COPY . .
-WORKDIR /src/src/API
+WORKDIR /src/API
 RUN dotnet build -c Release -o /app/build
 
 # Publish stage
 FROM build AS publish
-RUN dotnet publish -c Release -o /app/publish
+RUN dotnet publish API.csproj -c Release -o /app/publish
 
 # Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
