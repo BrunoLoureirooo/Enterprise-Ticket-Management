@@ -5,6 +5,9 @@ WORKDIR /src
 # Copy solution and project files
 COPY Backend.sln ./
 COPY API/API.csproj ./API/
+COPY Repository/Repository.csproj ./Repository/
+COPY Entities/Entities.csproj ./Entities/
+COPY Application/Application.csproj ./Application/
 
 # Restore dependencies
 RUN dotnet restore Backend.sln

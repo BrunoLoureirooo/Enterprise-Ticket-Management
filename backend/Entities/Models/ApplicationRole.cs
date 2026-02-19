@@ -10,6 +10,5 @@ namespace backend.Entities.Models
 {
     public class ApplicationRole : IdentityRole<Guid>
     {
-        public string Nome { get; set; }        
     }
 }

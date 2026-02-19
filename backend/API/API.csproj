@@ -17,8 +17,6 @@
     <ProjectReference Include="..\Repository\Repository.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Repository\Repository.csproj" />
-  </ItemGroup>
+
 
 </Project>

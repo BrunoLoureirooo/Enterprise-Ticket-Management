@@ -10,8 +10,8 @@ namespace backend.Entities.Models
 {
     public class ApplicationUser : IdentityUser<Guid>
     {
-        public string Nome { get; set; }        
+        public string? Nome { get; set; }        
         public string? RefreshToken { get; set; }
-        public DateTime RefreshTokenExpiryTime { get; set; }
+        public DateTime? RefreshTokenExpiryTime { get; set; }
     }
 }

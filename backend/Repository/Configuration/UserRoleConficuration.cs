@@ -60,12 +60,8 @@ public class UserRoleConfiguration : IEntityTypeConfiguration<IdentityUserRole<G
             {
                 UserId = UserConfiguration.LUIS_NEVES,
                 RoleId = RoleConfiguration.ROLE_FUNCIONARIO
-            },
-            new IdentityUserRole<Guid>
-            {
-                UserId = UserConfiguration.OLGA_CUNHA,
-                RoleId = RoleConfiguration.ROLE_FUNCIONARIO
             }
+
         );
     }
 }
