@@ -32,7 +32,6 @@ dotnet watch run
 dotnet clean
 
 # Create Migration
-dotnet ef migrations add [Name] \
-  --project backend/src/Infrastructure/Infrastructure.csproj \
-  --startup-project backend/src/API/API.csproj \
-  --output-dir Migrations
+cd backend/Repository
+dotnet ef migrations add [Name] 
+dotnet ef database update

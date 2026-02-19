@@ -1,0 +1,14 @@
+using AutoMapper;
+using backend.Entities.DataTransferObjects;
+using backend.Entities.Models;
+
+namespace backend.Application
+{
+    public class MappingProfile : Profile
+    {
+        public MappingProfile()
+        {
+            CreateMap<UserForRegistrationDto, ApplicationUser>();
+        }
+    }
+}
