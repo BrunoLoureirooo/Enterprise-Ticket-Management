@@ -29,14 +29,18 @@ services:
     container_name: ticket-backend
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8443
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=DevCertPassword123!
       - ConnectionStrings__DefaultConnection=Host=postgres;Database=ticketmanagement;Username=postgres;Password=postgres123
       - JwtSettings__Secret=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
       - JwtSettings__Issuer=TicketManagementAPI
       - JwtSettings__Audience=TicketManagementClient
       - JwtSettings__ExpiryMinutes=60
     ports:
-      - "5001:8080"
+      - "5001:8443"
+    volumes:
+      - ./https:/https:ro
     depends_on:
       postgres:
         condition: service_healthy

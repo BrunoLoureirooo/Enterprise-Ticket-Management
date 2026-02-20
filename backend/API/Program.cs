@@ -55,7 +55,7 @@ builder.Services.AddScoped<backend.Service.Contracts.ILoggerManager, backend.Ser
 builder.Services.AddScoped<backend.Repository.Contracts.IRepositoryManager, RepositoryManager>();
 
 // Add Service Manager
-builder.Services.AddScoped<backend.Service.Contracts.IServiceManager, backend.Service.ServiceManager>();
+builder.Services.AddScoped<backend.Service.Contracts.IServiceManager, backend.Application.Services.ServiceManager>();
 
 // Add Validation Filter Attribute
 builder.Services.AddScoped<backend.API.ActionFilters.ValidationFilterAttribute>();
@@ -90,6 +90,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
+app.UseCors("CorsPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();

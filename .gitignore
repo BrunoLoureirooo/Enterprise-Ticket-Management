@@ -26,3 +26,5 @@ docker-compose.override.yml
 
 # Documentation temp files
 *.tmp
+# HTTPS Dev Certificate (contains private key - never commit)
+https/
