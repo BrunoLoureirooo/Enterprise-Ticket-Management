@@ -1,1 +1,35 @@
-<p>users works!</p>
+<div class="container">
+    <div class="my-2">
+        <dx-toolbar>
+            <dxi-toolbar-item location="before">
+                <div *dxTemplate>
+                    <b>Users:</b>
+                </div>
+            </dxi-toolbar-item>
+            <dxi-toolbar-item location="after" widget="dxButton" [options]="{ icon: 'plus', hint: 'Add User' }">
+            </dxi-toolbar-item>
+        </dx-toolbar>
+    </div>
+
+    <dx-data-grid [dataSource]="users()" [showBorders]="true" [rowAlternationEnabled]="true" [columnAutoWidth]="true"
+        [allowColumnResizing]="true" [loadPanel]="{ enabled: loading(), text: 'Loading users...' }">
+
+        <dxo-search-panel [visible]="false" />
+        <dxo-filter-row [visible]="true" />
+        <dxo-header-filter [visible]="true" />
+        <dxo-paging [pageSize]="10" />
+        <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 25, 50]" [showInfo]="true" />
+
+        <dxo-editing mode="popup" [allowUpdating]="true" [allowDeleting]="true" [useIcons]="true" />
+
+        <dxi-column type="buttons" [width]="80">
+            <dxi-button name="edit" />
+        </dxi-column>
+
+        <dxi-column dataField="nome" caption="Name" />
+        <dxi-column dataField="email" caption="Email" />
+        <dxi-column dataField="phoneNumber" caption="Phone" />
+        <dxi-column dataField="lockoutEnabled" caption="Lockout" dataType="boolean" [width]="130" />
+
+    </dx-data-grid>
+</div>

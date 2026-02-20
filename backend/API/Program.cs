@@ -23,7 +23,8 @@ builder.Services.AddDbContext<RepositoryContext>(opts =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", builder =>
-        builder.AllowAnyOrigin()
+        builder
+        .WithOrigins("http://localhost:4200", "https://localhost:4200")
         .AllowAnyMethod()
         .AllowAnyHeader());
 });
