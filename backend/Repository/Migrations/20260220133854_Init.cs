@@ -167,6 +167,7 @@ namespace Repository.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
+                    { new Guid("1704848a-5252-4f1f-82ef-9c4a751683d9"), null, "Chefe", "CHEFE" },
                     { new Guid("418b0ac3-4dba-4ccf-883e-63fdd7ac62a9"), null, "Administrador", "ADMINISTRADOR" },
                     { new Guid("52c71224-fe99-4ec0-9130-0f0de200eec9"), null, "Funcionario", "FUNCIONARIO" }
                 });

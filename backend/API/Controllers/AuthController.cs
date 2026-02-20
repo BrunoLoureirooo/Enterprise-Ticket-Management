@@ -2,11 +2,10 @@ using backend.Service.Contracts;
 using backend.Entities.DataTransferObjects;
 using backend.API.ActionFilters;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace backend.API.Controllers
 {
-    [Route("api/auth")]
+    [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {

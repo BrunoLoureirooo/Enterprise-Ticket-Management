@@ -13,7 +13,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Reflection.Metadata;
 
-namespace backend.Service
+namespace backend.Application.Services
 {
     internal class AuthenticationService : IAuthenticationService
     {

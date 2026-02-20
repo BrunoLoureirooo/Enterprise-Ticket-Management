@@ -5,13 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace backend.Repository
 {
-    public class RepositoryContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
+    public class RepositoryContext(DbContextOptions<RepositoryContext> options) : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>(options)
     {
-        public RepositoryContext(DbContextOptions<RepositoryContext> options)
-        : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
