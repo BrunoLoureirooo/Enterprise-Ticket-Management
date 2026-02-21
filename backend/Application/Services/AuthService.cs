@@ -1,17 +1,15 @@
 using AutoMapper;
 using backend.Entities;
 using backend.Entities.Models;
-using backend.Service.Contracts;
+using backend.Application.Services.Contracts;
 using backend.Entities.DataTransferObjects;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Reflection.Metadata;
 
 namespace backend.Application.Services
 {
@@ -41,6 +39,24 @@ namespace backend.Application.Services
         //Public Functions
         public async Task<IdentityResult> RegisterUser(UserForRegistrationDto userForRegistration)
         {
+            if(string.IsNullOrEmpty(userForRegistration?.Email) || string.IsNullOrEmpty(userForRegistration?.Password))
+                return IdentityResult.Failed(new IdentityError
+                {
+                    Code = "InvalidUser",
+                    Description = "Invalid user"
+                });
+            
+            var userCheck = await _userManager.FindByEmailAsync(userForRegistration?.Email);
+            if (userCheck != null)
+            {
+                _logger.LogWarn($"{nameof(RegisterUser)}: User with email {userForRegistration?.Email} already exists.");
+                return IdentityResult.Failed(new IdentityError
+                {
+                    Code = "UserAlreadyExists",
+                    Description = "User already exists"
+                });
+            }
+        
             var user = _mapper.Map<ApplicationUser>(userForRegistration);
 
             var result = await _userManager.CreateAsync(user, userForRegistration?.Password ?? "NA");
@@ -71,7 +87,7 @@ namespace backend.Application.Services
             user.RefreshToken = refreshToken;
 
             if (populateExp)
-                user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+                user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
 
             await _userManager.UpdateAsync(user);
 
@@ -87,7 +103,7 @@ namespace backend.Application.Services
 
             var user = await _userManager.FindByNameAsync(username);
 
-            if (user == null || user.RefreshToken != tokenDto.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
+            if (user == null || user.RefreshToken != tokenDto.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
                 throw new Exception("Bad Token");
 
             return await CreateToken(user, populateExp: false);
@@ -136,7 +152,7 @@ namespace backend.Application.Services
                 issuer: _jwtConfiguration.ValidIssuer,
                 audience: _jwtConfiguration.ValidAudience,
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(Convert.ToDouble(_jwtConfiguration.Expires)),
+                expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_jwtConfiguration.Expires)),
                 signingCredentials: signingCredentials
             );
             return tokenOptions;

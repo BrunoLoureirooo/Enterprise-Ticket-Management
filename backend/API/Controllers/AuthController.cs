@@ -1,13 +1,11 @@
-using backend.Service.Contracts;
+using backend.Application.Services.Contracts;
 using backend.Entities.DataTransferObjects;
 using backend.API.ActionFilters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class AuthController : ControllerBase
+    public class AuthController : BaseApiController
     {
         private readonly IServiceManager _service;
         public AuthController(IServiceManager service) => _service = service;
@@ -26,5 +24,16 @@ namespace backend.API.Controllers
             return Ok(tokenDto);    
         }
 
+
+        [HttpPost("register")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> Register([FromBody] UserForRegistrationDto user)
+        {
+            var result = await _service.AuthenticationService.RegisterUser(user);
+            if (!result.Succeeded)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
     }
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace backend.Service.Contracts
+namespace backend.Application.Services.Contracts
 {
     public interface IServiceManager
     {

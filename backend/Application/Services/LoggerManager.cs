@@ -1,7 +1,7 @@
-using backend.Service.Contracts;
+using backend.Application.Services.Contracts;
 using Microsoft.Extensions.Logging;
 
-namespace backend.Service
+namespace backend.Application.Services
 {
     public class LoggerManager : ILoggerManager
     {

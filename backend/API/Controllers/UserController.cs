@@ -1,12 +1,10 @@
-using backend.Service.Contracts;
+using backend.Application.Services.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using backend.Entities.Models;
 
-namespace API.Controllers
+namespace backend.API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UserController : ControllerBase
+    public class UserController : BaseApiController
     {
         private readonly IServiceManager _service;
         public UserController(IServiceManager service) => _service = service;

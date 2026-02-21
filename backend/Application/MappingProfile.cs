@@ -8,7 +8,9 @@ namespace backend.Application
     {
         public MappingProfile()
         {
-            CreateMap<UserForRegistrationDto, ApplicationUser>();
+            CreateMap<UserForRegistrationDto, ApplicationUser>()
+                .ForMember(dest => dest.Nome,
+                    opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}".Trim()));
         }
     }
 }

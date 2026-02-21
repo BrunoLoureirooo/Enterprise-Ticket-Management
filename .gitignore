@@ -28,3 +28,9 @@ docker-compose.override.yml
 *.tmp
 # HTTPS Dev Certificate (contains private key - never commit)
 https/
+
+# Frontend SSL certs (contain private key - never commit)
+frontend/ssl/
+
+# Backend secrets
+backend/API/appsettings.json

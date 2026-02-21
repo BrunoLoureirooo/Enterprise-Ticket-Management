@@ -1,4 +1,4 @@
-namespace backend.Service.Contracts
+namespace backend.Application.Services.Contracts
 {
     public interface ILoggerManager
     {

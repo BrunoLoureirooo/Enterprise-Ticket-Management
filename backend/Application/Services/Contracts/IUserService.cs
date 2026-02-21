@@ -1,8 +1,6 @@
 using backend.Entities.Models;
-using backend.Entities.DataTransferObjects;
-using Microsoft.AspNetCore.Identity;
 
-namespace backend.Service.Contracts
+namespace backend.Application.Services.Contracts
 {
     public interface IUserService
     {

@@ -1,5 +1,6 @@
 using backend.Repository;
 using backend.Entities.Models;
+using backend.Application.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 
@@ -50,13 +51,13 @@ builder.Services.Configure<backend.Entities.JwtConfiguration>(builder.Configurat
 builder.Services.AddAutoMapper(typeof(backend.Application.MappingProfile));
 
 // Add Logger Manager
-builder.Services.AddScoped<backend.Service.Contracts.ILoggerManager, backend.Service.LoggerManager>();
+builder.Services.AddScoped<backend.Application.Services.Contracts.ILoggerManager, backend.Application.Services.LoggerManager>();
 
 // Add Repository Manager
 builder.Services.AddScoped<backend.Repository.Contracts.IRepositoryManager, RepositoryManager>();
 
 // Add Service Manager
-builder.Services.AddScoped<backend.Service.Contracts.IServiceManager, backend.Application.Services.ServiceManager>();
+builder.Services.AddScoped<backend.Application.Services.Contracts.IServiceManager, ServiceManager>();
 
 // Add Validation Filter Attribute
 builder.Services.AddScoped<backend.API.ActionFilters.ValidationFilterAttribute>();

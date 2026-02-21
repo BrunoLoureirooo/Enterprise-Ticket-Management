@@ -1,7 +1,7 @@
 using AutoMapper;
 using backend.Entities;
 using backend.Entities.Models;
-using backend.Service.Contracts;
+using backend.Application.Services.Contracts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using backend.Repository.Contracts;
