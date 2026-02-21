@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace backend.Entities.DataTransferObjects
+namespace backend.Entities.DataTransferObjects.Users
 {
     public record UserForRegistrationDto
     {

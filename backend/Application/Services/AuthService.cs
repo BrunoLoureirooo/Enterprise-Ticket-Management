@@ -3,6 +3,7 @@ using backend.Entities;
 using backend.Entities.Models;
 using backend.Application.Services.Contracts;
 using backend.Entities.DataTransferObjects;
+using backend.Entities.DataTransferObjects.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -46,7 +47,7 @@ namespace backend.Application.Services
                     Description = "Invalid user"
                 });
             
-            var userCheck = await _userManager.FindByEmailAsync(userForRegistration?.Email);
+            var userCheck = await _userManager.FindByEmailAsync(userForRegistration?.Email!);
             if (userCheck != null)
             {
                 _logger.LogWarn($"{nameof(RegisterUser)}: User with email {userForRegistration?.Email} already exists.");
@@ -113,8 +114,9 @@ namespace backend.Application.Services
         //Private Functions
         private SigningCredentials GetSigningCredentials()
         {
-            var secretKey = Environment.GetEnvironmentVariable("SECRET");
-            var key = Encoding.UTF8.GetBytes(secretKey ?? "This is a failing default secret just in case"); 
+            var secretKey = Environment.GetEnvironmentVariable("SECRET")
+                ?? throw new InvalidOperationException("JWT SECRET environment variable is not configured.");
+            var key = Encoding.UTF8.GetBytes(secretKey);
             var secret = new SymmetricSecurityKey(key);
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
         }
@@ -123,7 +125,10 @@ namespace backend.Application.Services
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.UserName ?? "NA"),
+                new Claim(ClaimTypes.Name, user.Nome!),
+                new Claim(ClaimTypes.Email, user.Email!),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Uri, user.ImageUrl ?? "NA"),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -131,6 +136,8 @@ namespace backend.Application.Services
             claims.AddRange(userClaims);
 
             var roles = await _userManager.GetRolesAsync(user);
+
+            //TODO change to claim based authentication 
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
@@ -173,7 +180,7 @@ namespace backend.Application.Services
                 ValidateAudience = true,
                 ValidateIssuer = true,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECRET") ?? "NA")),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECRET") ?? throw new InvalidOperationException("JWT SECRET environment variable is not configured."))),
                 ValidateLifetime = false, 
                 ValidIssuer = _jwtConfiguration.ValidIssuer,
                 ValidAudience = _jwtConfiguration.ValidAudience

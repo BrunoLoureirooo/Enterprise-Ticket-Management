@@ -1,23 +1,35 @@
 using backend.Application.Services.Contracts;
 using Microsoft.AspNetCore.Mvc;
-using backend.Entities.Models;
+using Microsoft.AspNetCore.Authorization;
+using backend.Entities.Enums;
+using backend.Entities.DataTransferObjects.Users;
+using AutoMapper;
 
 namespace backend.API.Controllers
 {
+    [Authorize]
     public class UserController : BaseApiController
     {
         private readonly IServiceManager _service;
-        public UserController(IServiceManager service) => _service = service;
+        private readonly IMapper _mapper;
+        public UserController(IServiceManager service, IMapper mapper) 
+        {
+            _service = service;
+            _mapper = mapper;
+        }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetUsers()
+        [Authorize(Roles = nameof(Roles.Administrador))]
+        public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
         {
             var users = await _service.UserService.GetUsers();
             
             if(users == null || !users.Any())
                 return NotFound();
 
-            return Ok(users);
+            var results = _mapper.Map<IEnumerable<UserDto>>(users);
+
+            return Ok(results);
         }
 
     }

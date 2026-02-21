@@ -45,7 +45,9 @@ services:
     networks:
       - ticket-network
     restart: unless-stopped
-
+    env_file:
+      - .env
+      
   # Angular Frontend
   frontend:
     build:

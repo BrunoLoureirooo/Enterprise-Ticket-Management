@@ -1,5 +1,5 @@
 using backend.Application.Services.Contracts;
-using backend.Entities.DataTransferObjects;
+using backend.Entities.DataTransferObjects.Users;
 using backend.API.ActionFilters;
 using Microsoft.AspNetCore.Mvc;
 

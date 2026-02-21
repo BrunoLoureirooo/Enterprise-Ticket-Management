@@ -12,7 +12,7 @@ using backend.Repository;
 namespace Repository.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    [Migration("20260220133854_Init")]
+    [Migration("20260221130536_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -246,6 +246,9 @@ namespace Repository.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("text");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");

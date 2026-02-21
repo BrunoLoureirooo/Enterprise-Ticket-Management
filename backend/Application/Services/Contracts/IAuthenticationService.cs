@@ -1,5 +1,6 @@
 using backend.Entities.Models;
 using backend.Entities.DataTransferObjects;
+using backend.Entities.DataTransferObjects.Users;
 using Microsoft.AspNetCore.Identity;
 
 namespace backend.Application.Services.Contracts

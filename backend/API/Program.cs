@@ -30,8 +30,8 @@ builder.Services.AddCors(options =>
         .AllowAnyHeader());
 });
 
-// Add Identity
-builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(o =>
+// Add Identity (use AddIdentityCore to avoid overriding JWT auth schemes)
+builder.Services.AddIdentityCore<ApplicationUser>(o =>
 {
     o.Password.RequireDigit = true;
     o.Password.RequireLowercase = false;
@@ -40,8 +40,10 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(o =>
     o.Password.RequiredLength = 10;
     o.User.RequireUniqueEmail = true;
 })
+.AddRoles<ApplicationRole>()
 .AddEntityFrameworkStores<RepositoryContext>()
-.AddDefaultTokenProviders();
+.AddDefaultTokenProviders()
+.AddSignInManager();
 
 
 // Add JWT Configuration
@@ -63,7 +65,7 @@ builder.Services.AddScoped<backend.Application.Services.Contracts.IServiceManage
 builder.Services.AddScoped<backend.API.ActionFilters.ValidationFilterAttribute>();
 
 
-// Add Authentication
+// Add Authentication — must be registered AFTER Identity to ensure JWT scheme wins
 builder.Services.AddAuthentication(opt =>
 {
     opt.DefaultAuthenticateScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
@@ -73,13 +75,14 @@ builder.Services.AddAuthentication(opt =>
 {
     options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["JwtSettings:ValidIssuer"],
-        ValidAudience = builder.Configuration["JwtSettings:ValidAudience"],
-        IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(System.Environment.GetEnvironmentVariable("SECRET") ?? "This is a failing default secret just in case"))
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
+            System.Text.Encoding.UTF8.GetBytes(
+                System.Environment.GetEnvironmentVariable("SECRET")
+                    ?? throw new InvalidOperationException("JWT SECRET environment variable is not configured.")))
     };
 });
 
