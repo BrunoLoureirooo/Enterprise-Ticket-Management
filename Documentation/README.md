@@ -1,10 +1,10 @@
 # Enterprise Ticket Management System (Work in Progress)
 
-Enterprise Ticket Management — a work-in-progress internal web application for managing operational tickets. Currently, the project consists of the initial infrastructure and database schema.
+Enterprise Ticket Management — a work-in-progress internal web application for managing operational tickets. The project currently has a functional authentication system, user management API, and core frontend scaffolding in place.
 
 ## Features (Planned)
 
-- **User Authentication**: Secure login system with role-based access control (Admin, Technician, User). [Planned]
+- **User Authentication**: Secure login system with role-based access control (Admin, Technician, User). [Implemented]
 - **Ticket Management**: [Planned]
   - Create, view, update, and delete tickets.
   - Categorize tickets by type (e.g., Hardware, Software, Network).
@@ -25,17 +25,18 @@ Enterprise Ticket Management — a work-in-progress internal web application for
 ### Frontend (Scaffolding Completed)
 - **Framework**: Angular
 - **Language**: TypeScript
-- **Styling**: DevExtreme 
 - **UI Components**: DevExtreme
 - **State Management**: NgRx (Planned)
 - **Routing**: Angular Router
-- **HTTP Client**: Axios (Planned)
+- **HTTP Client**: Angular HttpClient
 
-### Backend (Infrastructure Ready)
-- **Framework**: ASP.NET Core
+### Backend (Auth & User API Ready)
+- **Framework**: ASP.NET Core (.NET 8)
 - **Database**: PostgreSQL (Dockerized)
 - **ORM**: Entity Framework Core (Configured & Migrated)
-- **Authentication**: JWT (Identity Configured, Tokens Pending)
+- **Authentication**: JWT Bearer + ASP.NET Core Identity (Implemented)
+- **Mapping**: AutoMapper
+- **Documentation**: Swagger / OpenAPI
 
 ## Prerequisites
 
@@ -66,34 +67,51 @@ Interactive API documentation (Swagger UI) is available at:
 ```
 Enterprise-Ticket-Management/
 ├── backend/
-│   ├── src/
-│   │   ├── API/
-│   │   │   ├── Controllers/              # Presentation layer (Empty)
-│   │   │   ├── DataTransferObjects/      # DTOs
-│   │   │   └── Program.cs
-│   │   │
-│   │   ├── Application/
-│   │   │   ├── Interfaces/               # Service contracts (Empty)
-│   │   │   ├── Services/                 # Business logic layer (Empty)
-│   │   │   └── Validators/               # FluentValidation
-│   │   │
-│   │   ├── Domain/                       # Core business entities
-│   │   │   └── Entities/                 # Domain models
-│   │   │
-│   │   └── Infrastructure/               # External concerns
-│   │       ├── Data/                     # Data access layer
-│   │       └── Migrations/               # EF Core migrations
+│   ├── API/
+│   │   ├── ActionFilters/            # Validation filter attribute
+│   │   ├── Controllers/              # AuthController, UserController
+│   │   └── Program.cs                # App bootstrap, DI, middleware
 │   │
-│   └── tests/                            # Test projects (Missing)
+│   ├── Application/
+│   │   ├── Services/                 # AuthService, UserService, LoggerManager, ServiceManager
+│   │   │   └── Contracts/            # IAuthService, IUserService, IServiceManager, ILoggerManager
+│   │   └── MappingProfile.cs         # AutoMapper profiles
+│   │
+│   ├── Entities/
+│   │   ├── Models/                   # ApplicationUser, ApplicationRole
+│   │   ├── DataTransferObjects/      # TokenDto, User DTOs (register, login, response)
+│   │   ├── Enums/                    # Domain enumerations
+│   │   └── JWTConfiguration.cs       # JWT settings model
+│   │
+│   └── Repository/
+│       ├── Configuration/            # EF Core seed configs (User, Role, UserRole)
+│       ├── Contracts/                # IRepositoryManager
+│       ├── Migrations/               # EF Core migrations
+│       ├── RepositoryContext.cs      # DbContext
+│       ├── RepositoryContextFactory.cs
+│       └── RepositoryManager.cs
 │
 ├── frontend/
 │   └── src/
-│      └── app/
-│          ├── components/                # Reusable UI components
-│          ├── features/                  # Application pages/features (Auth, Tickets)
-│          ├── services/                  # API and state services
-│          ├── app.routes.ts              # Routing configuration
-│          └── app.config.ts              # App configuration
+│       ├── app/
+│       │   ├── app.ts                # Root component
+│       │   ├── app.routes.ts         # Routing configuration
+│       │   └── app.config.ts         # App configuration
+│       │
+│       ├── core/
+│       │   └── services/             # NavService (navigation state)
+│       │
+│       ├── features/
+│       │   ├── auth/login/           # Login page
+│       │   ├── home/                 # Dashboard page
+│       │   ├── tickets/              # Tickets page + My Tickets sub-page
+│       │   ├── users/                # Users management page
+│       │   └── settings/             # Settings page
+│       │
+│       └── shared/
+│           └── components/Layout/    # App shell (sidebar, toolbar, navigation)
 │
-└── Documentation/                        # Project documentation
+├── https/                            # Dev SSL certificate for Kestrel (Docker)
+├── docker-compose.yml                # PostgreSQL, Backend, Frontend, pgAdmin
+└── Documentation/                    # Project documentation
 ```

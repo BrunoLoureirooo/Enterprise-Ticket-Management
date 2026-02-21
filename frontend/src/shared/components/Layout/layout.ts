@@ -1,5 +1,5 @@
 import { Component, inject, computed } from '@angular/core';
-import { NavService } from '../../services/nav.service';
+import { NavService } from '../../../core/services/nav.service';
 import { DxToolbarModule, DxDrawerModule, DxListModule } from 'devextreme-angular';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
