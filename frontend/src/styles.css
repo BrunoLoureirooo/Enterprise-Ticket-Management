@@ -11,3 +11,14 @@ body {
 * {
     outline: none;
 }
+
+/* DevExtreme login form overrides */
+app-login-form .dx-button-content {
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+app-login-form .dx-label span {
+    color: #475569;
+    font-size: 13px;
+}

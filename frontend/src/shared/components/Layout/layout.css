@@ -36,3 +36,15 @@
 ::ng-deep .dx-list {
     background-color: transparent !important;
 }
+
+::ng-deep .dx-drop-down-button .dx-button-content {
+    justify-content: flex-start !important;
+    padding: 0 !important;
+}
+
+::ng-deep .dx-drop-down-button-popup-wrapper .dx-list-item-content,
+::ng-deep .dx-drop-down-button-popup-wrapper .dx-icon,
+::ng-deep .dx-overlay-wrapper .dx-drop-down-button-popup-wrapper .dx-list-item .dx-icon {
+    color: #111827 !important;
+    opacity: 1 !important;
+}

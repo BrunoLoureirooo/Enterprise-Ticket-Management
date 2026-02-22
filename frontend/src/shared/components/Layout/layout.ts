@@ -1,20 +1,36 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NavService } from '../../../core/services/nav.service';
-import { DxToolbarModule, DxDrawerModule, DxListModule } from 'devextreme-angular';
-import { Router } from '@angular/router';
+import { DxToolbarModule, DxDrawerModule, DxListModule, DxDropDownButtonModule } from 'devextreme-angular';
+import { Router, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
+import { UserInfo } from '../../../Models/Users/UserInfo';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [DxToolbarModule, DxDrawerModule, DxListModule, CommonModule, RouterLink],
+  imports: [DxToolbarModule, DxDrawerModule, DxListModule, DxDropDownButtonModule, CommonModule, RouterLink, RouterOutlet],
   templateUrl: './layout.html',
   styleUrls: ['./layout.css']
 })
 export class Layout {
   navService = inject(NavService);
   router = inject(Router);
+  authService = inject(AuthService);
+
+  currentUser: UserInfo | null = this.authService.getCurrentUser();
+
+  userMenuItems = [
+    { id: 'logout', text: 'Logout', icon: 'runner' },
+  ];
+
+  onUserMenuItemClick(e: any) {
+    if (e.itemData.id === 'logout') {
+      this.authService.logout();
+      this.router.navigate(['/login']);
+    }
+  }
 
   menuItems = [
     { id: 1, text: 'Dashboard', icon: 'bi bi-house-door', path: '' },
