@@ -1,0 +1,40 @@
+<form (submit)="onSubmit($event)">
+    <dx-form id="register-form" [formData]="creds" [labelLocation]="'top'" [validationGroup]="'registerGroup'">
+        <dxi-item itemType="group" [colCount]="2">
+            <dxi-item dataField="firstName" [editorOptions]="{ stylingMode: 'outlined' }">
+                <dxo-label text="First Name" />
+                <dxi-validation-rule type="required" message="First Name is required" />
+            </dxi-item>
+            <dxi-item dataField="lastName" [editorOptions]="{ stylingMode: 'outlined' }">
+                <dxo-label text="Last Name" />
+                <dxi-validation-rule type="required" message="Last Name is required" />
+            </dxi-item>
+        </dxi-item>
+        <dxi-item dataField="email" [editorOptions]="{ stylingMode: 'outlined' }">
+            <dxo-label text="Email" />
+            <dxi-validation-rule type="required" message="Email is required" />
+            <dxi-validation-rule type="pattern" pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
+                message="Please enter a valid email address" />
+        </dxi-item>
+        <dxi-item dataField="password" [editorOptions]="{ stylingMode: 'outlined', mode: 'password' }">
+            <dxo-label text="Password" />
+            <dxi-validation-rule type="required" message="Password is required" />
+            <dxi-validation-rule type="pattern" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W\_]).{8,}$"
+                message="Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character" />
+        </dxi-item>
+        <dxi-item dataField="confirmPassword" [editorOptions]="{ stylingMode: 'outlined', mode: 'password' }">
+            <dxo-label text="Confirm Password" />
+            <dxi-validation-rule type="required" message="Confirm Password is required" />
+            <dxi-validation-rule type="compare" [comparisonTarget]="passwordComparisonTarget"
+                message="Passwords do not match" />
+        </dxi-item>
+        <dxi-item itemType="button" horizontalAlignment="right">
+            <dxo-button-options text="Sign Up" [width]="120" type="default" [disabled]="isSubmitting()"
+                [stylingMode]="'contained'" [useSubmitBehavior]="true" />
+        </dxi-item>
+    </dx-form>
+</form>
+<div class="mt-4 text-center text-sm flex flex-col gap-2">
+    <p class="text-gray-600">Already have an account? <a [routerLink]="loginLink()"
+            class="text-blue-600 hover:underline">Sign In</a></p>
+</div>

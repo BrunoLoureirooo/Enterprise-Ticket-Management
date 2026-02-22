@@ -1,19 +1,19 @@
 <form (submit)="onSubmit($event)" class="block">
-    <dx-form labelLocation="top" [formData]="formData" [disabled]="loading" [showColonAfterLabel]="false">
-        <dxi-item dataField="username" editorType="dxTextBox"
-            [editorOptions]="{ stylingMode: 'filled', placeholder: 'Username', mode: 'text' }">
-            <dxi-validation-rule type="required" message="Username is required"></dxi-validation-rule>
-            <dxo-label text="Username"></dxo-label>
+    <dx-form id="login-form" [formData]="formData" [disabled]="loading" [labelLocation]="'top'">
+        <dxi-item dataField="username" [editorOptions]="{ stylingMode: 'outlined', placeholder: 'Username' }">
+            <dxo-label text="Username" />
+            <dxi-validation-rule type="required" message="Username is required" />
         </dxi-item>
 
-        <dxi-item dataField="password" editorType="dxTextBox" [editorOptions]="passwordEditorOptions">
-            <dxi-validation-rule type="required" message="Password is required"></dxi-validation-rule>
-            <dxo-label text="Password"></dxo-label>
+        <dxi-item dataField="password"
+            [editorOptions]="{ stylingMode: 'outlined', placeholder: 'Password', mode: 'password' }">
+            <dxo-label text="Password" />
+            <dxi-validation-rule type="required" message="Password is required" />
         </dxi-item>
 
-        <dxi-item itemType="button">
-            <dxo-button-options width="100%" type="default" [useSubmitBehavior]="true"
-                [template]="'signInTemplate'"></dxo-button-options>
+        <dxi-item itemType="button" horizontalAlignment="right">
+            <dxo-button-options text="Sign In" [width]="'100%'" type="default" [template]="'signInTemplate'"
+                [useSubmitBehavior]="true" [stylingMode]="'contained'" />
         </dxi-item>
 
         <ng-container *dxTemplate="let item of 'signInTemplate'">
@@ -26,7 +26,10 @@
         </ng-container>
     </dx-form>
 
-    <div class="mt-4 text-center text-sm">
-        <a [routerLink]="resetLink" class="text-blue-600 hover:underline">Forgot password?</a>
+    <div class="mt-4 text-center text-sm flex flex-col gap-2">
+        <!--TODO: Implement forgot password functionality-->
+        <a [routerLink]="resetLink()" class="text-blue-600 hover:underline">Forgot password?</a>
+        <p class="text-gray-600">Don't have an account? <a [routerLink]="createAccountLink()"
+                class="text-blue-600 hover:underline">Sign Up</a></p>
     </div>
 </form>

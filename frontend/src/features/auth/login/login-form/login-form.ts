@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { DxFormModule } from 'devextreme-angular/ui/form';
@@ -20,8 +20,8 @@ import { AuthService } from '../../../../core/services/auth.service';
   ]
 })
 export class LoginForm {
-  @Input() resetLink = '/reset-password';
-  @Input() createAccountLink = '/register';
+  resetLink = signal('/reset-password');
+  createAccountLink = signal('/register');
 
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -31,12 +31,6 @@ export class LoginForm {
   formData: { username: string; password: string } = {
     username: '',
     password: '',
-  };
-
-  passwordEditorOptions = {
-    stylingMode: 'filled',
-    placeholder: 'Password',
-    mode: 'password',
   };
 
   async onSubmit(e: Event) {

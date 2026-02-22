@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
 import { LoginResponse } from '../../Models/Auth/LoginResponse';
 import { UserInfo } from '../../Models/Users/UserInfo';
+import { RegisterUser } from '../../Models/Users/RegisterUser';
 
 
 
@@ -31,6 +32,24 @@ export class AuthService {
             return { ok: false, message };
         }
     }
+
+
+    async register(registerUser: RegisterUser): Promise<{ ok: boolean; message?: string }> {
+        try {
+            const response = await lastValueFrom(
+                this.http.post<LoginResponse>(`${this.API}/register`, registerUser)
+            );
+            this.setToken(response.accessToken);
+            return { ok: true };
+        } catch (err: any) {
+            const message =
+                err?.error?.message ??
+                err?.error?.title ??
+                (err?.status ? `Error ${err.status}: ${err.statusText}` : 'Registration failed');
+            return { ok: false, message };
+        }
+    }
+
 
     isLoggedIn(): boolean {
         const token = localStorage.getItem(this.TOKEN_KEY);

@@ -11,7 +11,9 @@ namespace backend.Application
             //Users
             CreateMap<UserForRegistrationDto, ApplicationUser>()
                 .ForMember(dest => dest.Nome,
-                    opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}".Trim()));
+                    opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}".Trim()))
+                .ForMember(dest => dest.UserName,
+                    opt => opt.MapFrom(src => src.Email != null ? src.Email.Split('@', StringSplitOptions.None)[0] : null));
             
             CreateMap<ApplicationUser, UserDto>();
         }
