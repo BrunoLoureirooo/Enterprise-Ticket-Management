@@ -4,8 +4,8 @@ import { Router, RouterModule } from '@angular/router';
 import { DxFormModule } from 'devextreme-angular/ui/form';
 import { DxLoadIndicatorModule } from 'devextreme-angular/ui/load-indicator';
 import { DxButtonModule } from 'devextreme-angular/ui/button';
-import notify from 'devextreme/ui/notify';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-login-form',
@@ -25,8 +25,9 @@ export class LoginForm {
 
   private authService = inject(AuthService);
   private router = inject(Router);
+  private toastService = inject(ToastService);
 
-  loading = false;
+  loading = signal(false);
 
   formData: { username: string; password: string } = {
     username: '',
@@ -35,19 +36,26 @@ export class LoginForm {
 
   async onSubmit(e: Event) {
     e.preventDefault();
-    this.loading = true;
+    if (this.loading()) return;
 
-    const result = await this.authService.logIn(
-      this.formData.username,
-      this.formData.password
-    );
-    this.loading = false;
+    this.loading.set(true);
+    try {
+      const result = await this.authService.logIn(
+        this.formData.username,
+        this.formData.password
+      );
 
-    if (!result.ok) {
-      notify(result.message ?? 'Login failed', 'error', 3000);
-      return;
+      if (!result.ok) {
+        this.toastService.error(result.message ?? 'Login failed');
+        return;
+      }
+
+      this.toastService.success('Login successful');
+      this.router.navigate(['/']);
+    } catch (err) {
+      this.toastService.error('An unexpected error occurred');
+    } finally {
+      this.loading.set(false);
     }
-
-    this.router.navigate(['/']);
   }
 }

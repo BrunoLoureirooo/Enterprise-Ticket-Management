@@ -1,5 +1,5 @@
 <form (submit)="onSubmit($event)" class="block">
-    <dx-form id="login-form" [formData]="formData" [disabled]="loading" [labelLocation]="'top'">
+    <dx-form id="login-form" [formData]="formData" [disabled]="loading()" [labelLocation]="'top'">
         <dxi-item dataField="username" [editorOptions]="{ stylingMode: 'outlined', placeholder: 'Username' }">
             <dxo-label text="Username" />
             <dxi-validation-rule type="required" message="Username is required" />
@@ -18,7 +18,7 @@
 
         <ng-container *dxTemplate="let item of 'signInTemplate'">
             <span class="dx-button-text">
-                <ng-container *ngIf="loading; else notLoading">
+                <ng-container *ngIf="loading(); else notLoading">
                     <dx-load-indicator width="24px" height="24px" [visible]="true"></dx-load-indicator>
                 </ng-container>
                 <ng-template #notLoading>Sign In</ng-template>

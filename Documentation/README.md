@@ -4,21 +4,26 @@ Enterprise Ticket Management — a work-in-progress internal web application for
 
 ## Features (Planned)
 
-- **User Authentication**: Secure login system with role-based access control (Admin, Technician, User). [Implemented]
+- **User Authentication**: 
+  - Secure login system with role-based access control (Admin, TeamLeader, Technician). [Implemented]
+  - User registration [Implemented]
+  - User management [Planned]
+  - User roles [Planned]
+  - User permissions [Planned]
+- **Team Management**: [Planned]
+  - Create, view, update, and delete teams.
+  - Assign users to teams.
 - **Ticket Management**: [Planned]
   - Create, view, update, and delete tickets.
   - Categorize tickets by type (e.g., Hardware, Software, Network).
   - Set priority levels (Low, Medium, High, Critical).
   - Track ticket status (Open, In Progress, On Hold, Resolved, Closed).
 - **Assignment & Workflow**: [Planned]
-  - Admins can assign tickets to specific technicians.
+  - TeamLeaders can assign tickets to specific technicians.
   - Technicians can update ticket status and add internal notes.
-  - Users can view their ticket history and add comments.
 - **Audit Trail**: [Planned]
   - Comprehensive logging of all ticket activities.
   - Tracks who made changes and when.
-- **Responsive UI**: [Planned]
-  - Modern, clean interface built with DevExtreme.
 
 ## Tech Stack
 

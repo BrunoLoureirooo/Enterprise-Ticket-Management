@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { DxFormModule } from 'devextreme-angular';
 import { RegisterUser } from '../../../../Models/Users/RegisterUser';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-register-form',
@@ -13,6 +14,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 export class RegisterForm {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private toastService = inject(ToastService);
 
   loginLink = signal('/login');
 
@@ -31,9 +33,10 @@ export class RegisterForm {
       const { confirmPassword: _, ...registerData } = this.creds;
       const result = await this.authService.register(registerData);
       if (result.ok) {
+        this.toastService.success('Registration successful');
         this.router.navigate(['/login']);
       } else {
-        alert(result.message ?? 'Registration failed');
+        this.toastService.error(result.message ?? 'Registration failed');
       }
     } finally {
       this.isSubmitting.set(false);

@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import { DxDataGridModule, DxToolbarModule } from 'devextreme-angular';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-users',
@@ -12,6 +13,8 @@ import { DxDataGridModule, DxToolbarModule } from 'devextreme-angular';
 export class Users implements OnInit {
 
   private http = inject(HttpClient);
+  private toastService = inject(ToastService);
+  
   protected users = signal<any>([]);
   protected loading = signal(true);
 
@@ -27,8 +30,8 @@ export class Users implements OnInit {
   async GetUsers() {
     try {
       return lastValueFrom(this.http.get('https://localhost:5001/api/User'));
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      this.toastService.error(error.message ?? 'Failed to load users');
       throw error;
     }
   }
