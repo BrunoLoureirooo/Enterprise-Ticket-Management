@@ -12,7 +12,7 @@
     <div class="h-full flex justify-center">
         <router-outlet></router-outlet>
     </div>
-
+    <!--TODO hide unavailable routes-->
     <div *dxTemplate="let data of 'sidebar'" class="h-full bg-gray-900 text-white flex flex-col">
         <dx-list [dataSource]="menuItems" [hoverStateEnabled]="true" [activeStateEnabled]="false"
             [focusStateEnabled]="false" (onItemClick)="onItemClick($event)" width="256px">
