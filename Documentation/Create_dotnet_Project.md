@@ -1,3 +1,6 @@
+#Create Solution
+dotnet new sln -n [name]
+
 # Create Project
 dotnet new [type] -n [name] -o [path]
 

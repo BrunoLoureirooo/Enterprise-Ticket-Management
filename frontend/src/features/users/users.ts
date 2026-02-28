@@ -14,7 +14,7 @@ export class Users implements OnInit {
 
   private http = inject(HttpClient);
   private toastService = inject(ToastService);
-  
+
   protected users = signal<any>([]);
   protected loading = signal(true);
 

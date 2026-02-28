@@ -17,9 +17,9 @@ namespace backend.Repository
             // Adjust path if running from solution root (expects backend/API) or sibling project
             if (!File.Exists(appSettingsPath))
             {
-                if (File.Exists(Path.Combine(basePath, "backend", "API", "appsettings.json")))
+                if (File.Exists(Path.Combine(basePath, "backend", "identity-api", "API", "appsettings.json")))
                 {
-                    basePath = Path.Combine(basePath, "backend", "API");
+                    basePath = Path.Combine(basePath, "backend", "identity-api", "API");
                 }
                 else if (File.Exists(Path.Combine(basePath, "..", "API", "appsettings.json")))
                 {

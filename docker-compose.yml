@@ -19,22 +19,18 @@ services:
       timeout: 5s
       retries: 5
 
-  # ASP.NET Core Backend API (.NET 8)
-  backend:
+  # ASP.NET Core Backend Gateway API (.NET 8)
+  gateway:
     build:
-      context: ./backend
+      context: ./backend/gateway-api
       dockerfile: Dockerfile
-    container_name: ticket-backend
+    container_name: ticket-backend-gateway
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTPS_PORTS=8443
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
       - ASPNETCORE_Kestrel__Certificates__Default__Password=DevCertPassword123!
-      - ConnectionStrings__DefaultConnection=Host=postgres;Database=ticketmanagement;Username=postgres;Password=postgres123
-      - JwtSettings__Secret=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
-      - JwtSettings__Issuer=TicketManagementAPI
-      - JwtSettings__Audience=TicketManagementClient
-      - JwtSettings__ExpiryMinutes=60
+      - Sentry__Dsn=${SENTRY_DSN_GATEWAY}
     ports:
       - "5001:8443"
     volumes:
@@ -45,9 +41,37 @@ services:
     networks:
       - ticket-network
     restart: unless-stopped
+
+  # ASP.NET Core Backend Identity API (.NET 8)
+  backend:
+    build:
+      context: ./backend/identity-api
+      dockerfile: Dockerfile
+    container_name: ticket-backend-identity
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTPS_PORTS=8443
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=DevCertPassword123!
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=identitydb;Username=postgres;Password=${DB_PASSWORD}
+      - JwtSettings__Secret=${SECRET}
+      - JwtSettings__Issuer=TicketManagementAPI
+      - JwtSettings__Audience=TicketManagementClient
+      - JwtSettings__ExpiryMinutes=60
+      - Sentry__Dsn=${SENTRY_DSN_IDENTITY}
+    ports:
+      - "5002:8443"
+    volumes:
+      - ./https:/https:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - ticket-network
+    restart: unless-stopped
     env_file:
       - .env
-      
+
   # Angular Frontend
   frontend:
     build:

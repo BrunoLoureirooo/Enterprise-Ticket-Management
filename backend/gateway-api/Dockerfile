@@ -3,14 +3,11 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy solution and project files
-COPY Backend.sln ./
+COPY Gateway.sln ./
 COPY API/API.csproj ./API/
-COPY Repository/Repository.csproj ./Repository/
-COPY Entities/Entities.csproj ./Entities/
-COPY Application/Application.csproj ./Application/
 
 # Restore dependencies
-RUN dotnet restore Backend.sln
+RUN dotnet restore Gateway.sln
 
 # Copy everything else and build
 COPY . .

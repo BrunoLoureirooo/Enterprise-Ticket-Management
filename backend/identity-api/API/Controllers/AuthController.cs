@@ -35,5 +35,13 @@ namespace backend.API.Controllers
 
             return Ok(result);
         }
+
+        [HttpPost("test-sentry")]
+        public async Task<IActionResult> TestSentry()
+        {
+            SentrySdk.CaptureMessage("Hello Sentry");
+            return Ok();
+        }
+
     }
 }
