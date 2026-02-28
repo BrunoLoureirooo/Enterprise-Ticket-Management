@@ -11,6 +11,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using backend.Entities.Constants;
 
 namespace backend.Application.Services
 {
@@ -111,6 +112,66 @@ namespace backend.Application.Services
         }
 
 
+        public async Task<bool> Authorize(AuthorizationRequestDto request)
+        {
+            try
+            {
+                // Resolve the required permission first
+                var requiredPermission = PermissionResolver.Resolve(request.Path, request.Method);
+                if (string.IsNullOrEmpty(requiredPermission))
+                {
+                    _logger.LogWarn($"{nameof(Authorize)}: No permission mapped for {request.Method} {request.Path}");
+                    return false; // Default deny if no mapping
+                }
+
+                // Public routes don't require a token
+                if (requiredPermission == "anonymous")
+                    return true;
+
+                var principal = GetPrincipalFromExpiredToken(request.Token);
+                if (principal == null || principal.Identity == null || !principal.Identity.IsAuthenticated)
+                    return false;
+
+                var username = principal.Identity.Name;
+                if (string.IsNullOrEmpty(username))
+                    return false;
+                
+                var user = await _userManager.FindByNameAsync(username);
+                if (user == null)
+                    return false;
+
+                var roles = await _userManager.GetRolesAsync(user);
+                bool hasPermission = false;
+
+                foreach (var roleName in roles)
+                {
+                    var roleEntity = await _roleManager.FindByNameAsync(roleName);
+                    if (roleEntity != null)
+                    {
+                        var roleClaims = await _roleManager.GetClaimsAsync(roleEntity);
+                        if (roleClaims.Any(c => c.Type == "permission" && c.Value == requiredPermission))
+                        {
+                            hasPermission = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!hasPermission)
+                {
+                    _logger.LogWarn($"{nameof(Authorize)}: User {username} does not have required permission {requiredPermission}");
+                    return false;
+                }
+                
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"{nameof(Authorize)}: Token validation failed - {ex.Message}");
+                return false;
+            }
+        }
+
         //Private Functions
         private SigningCredentials GetSigningCredentials()
         {
@@ -137,11 +198,10 @@ namespace backend.Application.Services
 
             var roles = await _userManager.GetRolesAsync(user);
 
-            //TODO change to claim based authentication 
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
-                
+
                 var roleEntity = await _roleManager.FindByNameAsync(role);
                 if (roleEntity != null)
                 {

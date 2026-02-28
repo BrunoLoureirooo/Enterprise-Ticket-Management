@@ -30,6 +30,7 @@ services:
       - ASPNETCORE_HTTPS_PORTS=8443
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
       - ASPNETCORE_Kestrel__Certificates__Default__Password=DevCertPassword123!
+      - IdentityApiUrl=http://ticket-backend-identity:8080
       - Sentry__Dsn=${SENTRY_DSN_GATEWAY}
     ports:
       - "5001:8443"

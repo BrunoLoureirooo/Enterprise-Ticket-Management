@@ -11,5 +11,6 @@ namespace backend.Application.Services.Contracts
         Task<ApplicationUser?> ValidateUser(UserForAuthenticationDto userForAuth);
         Task<TokenDto> CreateToken(ApplicationUser user, bool populateExp);
         Task<TokenDto> RefreshToken(TokenDto tokenDto);
+        Task<bool> Authorize(AuthorizationRequestDto authorizationRequest);
     }
 }

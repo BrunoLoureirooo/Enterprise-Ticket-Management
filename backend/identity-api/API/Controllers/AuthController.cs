@@ -43,5 +43,15 @@ namespace backend.API.Controllers
             return Ok();
         }
 
+        [HttpPost("authorize")]
+        public async Task<IActionResult> Authorize([FromBody] AuthorizationRequestDto request)
+        {
+            var result = await _service.AuthenticationService.Authorize(request);
+            if (!result)
+                return StatusCode(403); // Forbidden
+
+            return Ok();
+        }
+
     }
 }

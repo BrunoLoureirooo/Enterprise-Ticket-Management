@@ -1,4 +1,5 @@
 using Serilog;
+using gateway_api.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,9 +26,14 @@ builder.Services.AddCors(options =>
         .AllowAnyHeader());
 });
 
+builder.Services.AddHttpClient();
+builder.Services.AddMemoryCache();
+
 var app = builder.Build();
 
 app.UseCors("CorsPolicy");
+
+app.UseMiddleware<GatewayAuthorizationMiddleware>();
 
 // Map the reverse proxy endpoints
 app.MapReverseProxy();

@@ -9,6 +9,8 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddDataProtection();
+
 builder.Host.UseSerilog((context, services, configuration) => configuration
     .ReadFrom.Configuration(context.Configuration)
     .ReadFrom.Services(services)
@@ -43,6 +45,7 @@ builder.Services.AddCors(options =>
 });
 
 // Add Identity (use AddIdentityCore to avoid overriding JWT auth schemes)
+builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddIdentityCore<ApplicationUser>(o =>
 {
     o.Password.RequireDigit = true;
@@ -77,27 +80,6 @@ builder.Services.AddScoped<backend.Application.Services.Contracts.IServiceManage
 builder.Services.AddScoped<backend.API.ActionFilters.ValidationFilterAttribute>();
 
 
-// Add Authentication — must be registered AFTER Identity to ensure JWT scheme wins
-builder.Services.AddAuthentication(opt =>
-{
-    opt.DefaultAuthenticateScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
-    opt.DefaultChallengeScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-    {
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
-            System.Text.Encoding.UTF8.GetBytes(
-                System.Environment.GetEnvironmentVariable("SECRET")
-                    ?? throw new InvalidOperationException("JWT SECRET environment variable is not configured.")))
-    };
-});
-
 var app = builder.Build();
 
 // Automatically apply EF Core migrations on startup
@@ -125,9 +107,6 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseCors("CorsPolicy");
-
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.MapControllers();
 
