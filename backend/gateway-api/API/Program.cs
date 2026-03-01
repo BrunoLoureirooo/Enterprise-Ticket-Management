@@ -26,12 +26,27 @@ builder.Services.AddCors(options =>
         .AllowAnyHeader());
 });
 
-builder.Services.AddHttpClient();
+builder.Services.AddHttpClient("pdp", client => { })
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+    });
 builder.Services.AddMemoryCache();
+
+// Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
 app.UseCors("CorsPolicy");
+
+// Swagger UI — aggregates docs from all services via YARP passthrough routes
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/identity/v1/swagger.json", "Identity API");
+    c.RoutePrefix = "swagger";
+});
 
 app.UseMiddleware<GatewayAuthorizationMiddleware>();
 

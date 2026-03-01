@@ -6,6 +6,12 @@ namespace backend.Entities.Constants
         {
             var parts = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
+            if (parts.Length < 1) return null;
+
+            // Swagger UI doc fetches are always public (dev tooling)
+            if (parts[0].ToLower() == "swagger")
+                return "anonymous";
+
             if (parts.Length < 2) return null;
 
             var resource = parts[1].ToLower();

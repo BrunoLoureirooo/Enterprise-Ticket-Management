@@ -53,7 +53,7 @@ namespace gateway_api.API.Middleware
             }
 
             // Call Identity API PDP
-            var client = _httpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient("pdp");
             
             var requestPayload = new
             {
