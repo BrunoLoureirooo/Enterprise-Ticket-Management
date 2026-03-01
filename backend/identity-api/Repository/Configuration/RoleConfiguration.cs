@@ -17,20 +17,20 @@ namespace backend.Repository.Configuration
             new ApplicationRole
             {
                 Id = ROLE_ADMINISTRADOR,
-                Name = "Administrador",
-                NormalizedName = "ADMINISTRADOR"
+                Name = "Admin",
+                NormalizedName = "ADMIN"
             },
             new ApplicationRole
             {
                 Id = ROLE_FUNCIONARIO,
-                Name = "Funcionario",
-                NormalizedName = "FUNCIONARIO"
+                Name = "Employee",
+                NormalizedName = "EMPLOYEE"
             },
             new ApplicationRole
             {
                 Id = ROLE_CHEFE,
-                Name = "Chefe",
-                NormalizedName = "CHEFE"
+                Name = "Manager",
+                NormalizedName = "MANAGER"
             }
             );
         }

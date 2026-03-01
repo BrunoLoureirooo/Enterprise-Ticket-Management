@@ -32,13 +32,22 @@ export class Layout {
     }
   }
 
-  menuItems = [
-    { id: 1, text: 'Dashboard', icon: 'bi bi-house-door', path: '' },
-    { id: 2, text: 'Tickets', icon: 'bi bi-ticket-perforated', path: '/tickets' },
-    { id: 3, text: 'My Tickets', icon: 'bi bi-clipboard-check', path: '/my-tickets' },
-    { id: 4, text: 'Users', icon: 'bi bi-people', path: '/users' },
-    { id: 5, text: 'Settings', icon: 'bi bi-gear', path: '/settings' },
-  ];
+  readonly menuItems: { id: number; text: string; icon: string; path: string; permission: string | null }[];
+
+  constructor() {
+    const isAdmin = this.currentUser?.role === 'Admin';
+    this.menuItems = [
+      { id: 1, text: 'Dashboard', icon: 'bi bi-house-door', path: '', permission: null },
+      { id: 2, text: 'Tickets', icon: 'bi bi-ticket-perforated', path: '/tickets', permission: null },
+      { id: 3, text: 'My Tickets', icon: 'bi bi-clipboard-check', path: '/my-tickets', permission: null },
+      { id: 4, text: 'Users', icon: 'bi bi-people', path: '/users', permission: 'user:read' },
+      { id: 5, text: 'Settings', icon: 'bi bi-gear', path: '/settings', permission: null },
+    ].filter(item =>
+      item.permission === null ||
+      isAdmin ||
+      (this.currentUser?.permissions ?? []).includes(item.permission!)
+    );
+  }
 
   get isOpen() {
     return this.navService.isOpen();
@@ -57,6 +66,15 @@ export class Layout {
   toggleSidebar() {
     this.navService.toggle();
   }
+
+  get displayName(): string {
+    const name = this.currentUser?.name ?? '';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length <= 2) return name;
+    return `${parts[0]} ${parts[parts.length - 1]}`;
+  }
+
+
 
   onItemClick(e: any) {
     if (e.itemData.path) {

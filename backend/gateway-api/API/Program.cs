@@ -1,5 +1,8 @@
 using Serilog;
 using gateway_api.API.Middleware;
+using StackExchange.Redis;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,8 +14,7 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
 
 builder.WebHost.UseSentry();
 
-
-// Add YARP services and load the configuration from appsettings.json
+// Add YARP — configuration from appsettings.json
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
@@ -26,12 +28,31 @@ builder.Services.AddCors(options =>
         .AllowAnyHeader());
 });
 
-builder.Services.AddHttpClient("pdp", client => { })
-    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+// Add Redis (singleton — one multiplexer for the process lifetime)
+var redisConn = builder.Configuration["Redis:ConnectionString"] ?? "localhost:6379";
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConn));
+
+// Add rate limiting — fixed window, per IP
+// Adjust PermitLimit / Window to taste; sliding window or token bucket are also available.
+builder.Services.AddRateLimiter(options =>
+{
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(ctx =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: ctx.Connection.RemoteIpAddress?.ToString() ?? "anon",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit          = 100,
+                Window               = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit           = 0
+            }));
+
+    options.OnRejected = async (context, _) =>
     {
-        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-    });
-builder.Services.AddMemoryCache();
+        context.HttpContext.Response.StatusCode = 429;
+        await context.HttpContext.Response.WriteAsync("Too many requests.");
+    };
+});
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -40,6 +61,8 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 app.UseCors("CorsPolicy");
+
+app.UseRateLimiter();
 
 // Swagger UI — aggregates docs from all services via YARP passthrough routes
 app.UseSwaggerUI(c =>

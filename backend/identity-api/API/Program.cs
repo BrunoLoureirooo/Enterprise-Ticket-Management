@@ -1,10 +1,15 @@
 using backend.Repository;
+using backend.Repository.Contracts;
+using backend.Entities;
 using backend.Entities.Models;
+using backend.Application;
 using backend.Application.Services;
+using backend.Application.Services.Contracts;
+using backend.API.ActionFilters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-
+using StackExchange.Redis;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -62,22 +67,32 @@ builder.Services.AddIdentityCore<ApplicationUser>(o =>
 
 
 // Add JWT Configuration
-builder.Services.Configure<backend.Entities.JwtConfiguration>(builder.Configuration.GetSection("JwtSettings"));
+builder.Services.Configure<JwtConfiguration>(builder.Configuration.GetSection("JwtSettings"));
 
 // Add AutoMapper
-builder.Services.AddAutoMapper(typeof(backend.Application.MappingProfile));
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 // Add Logger Manager
-builder.Services.AddScoped<backend.Application.Services.Contracts.ILoggerManager, backend.Application.Services.LoggerManager>();
+builder.Services.AddScoped<ILoggerManager, LoggerManager>();
 
 // Add Repository Manager
-builder.Services.AddScoped<backend.Repository.Contracts.IRepositoryManager, RepositoryManager>();
+builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
 
 // Add Service Manager
-builder.Services.AddScoped<backend.Application.Services.Contracts.IServiceManager, ServiceManager>();
+builder.Services.AddScoped<IServiceManager, ServiceManager>();
 
 // Add Validation Filter Attribute
-builder.Services.AddScoped<backend.API.ActionFilters.ValidationFilterAttribute>();
+builder.Services.AddScoped<ValidationFilterAttribute>();
+
+// Add Claim Enrichers — one per external service that contributes contextual claims.
+// Swap NullClaimEnricher for a real implementation (e.g. HrServiceClaimEnricher)
+// when external profile services exist. Register multiple as needed.
+builder.Services.AddScoped<IClaimEnricher, NullClaimEnricher>();
+
+// Add Redis
+var redisConn = builder.Configuration["Redis:ConnectionString"] ?? "localhost:6379";
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConn));
+builder.Services.AddScoped<ITokenRevocationService, TokenRevocationService>();
 
 
 var app = builder.Build();
@@ -88,12 +103,12 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
-        var context = services.GetRequiredService<backend.Repository.RepositoryContext>();
+        var context = services.GetRequiredService<RepositoryContext>();
         context.Database.Migrate();
     }
     catch (Exception ex)
     {
-        var logger = services.GetRequiredService<Microsoft.Extensions.Logging.ILogger<Program>>();
+        var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "An error occurred while migrating or seeding the database.");
     }
 }

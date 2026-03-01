@@ -1,15 +1,22 @@
 # Enterprise Ticket Management System (Work in Progress)
 
-Enterprise Ticket Management — a work-in-progress internal web application for managing operational tickets. The project currently has a functional authentication system, user management API, and core frontend scaffolding in place.
+Enterprise Ticket Management — a work-in-progress internal web application for managing operational tickets. The project has a functional authentication system with JWT + claims-based authorization, a YARP API gateway with permission enforcement, user management API, and a fully navigable Angular frontend with role-aware sidebar.
 
-## Features (Planned)
+## Features
 
-- **User Authentication**: 
-  - Secure login system with role-based access control (Admin, TeamLeader, Technician). [Implemented]
+- **User Authentication**:
+  - Secure login system with role-based access control (Admin, TeamLeader, Technician)[Implemented]
   - User registration [Implemented]
-  - User management [Planned]
-  - User roles [Planned]
-  - User permissions [Planned]
+  - User management API [Implemented]
+
+- **Authorization**:
+  - YARP gateway middleware validates JWTs and enforces `permissions` claims per route [Implemented]
+  - Admin role bypasses all permission checks [Implemented]
+  - JWT with claims — roles carry granular permission claims seeded via EF Core [Implemented]
+  - Frontend sidebar tabs conditionally shown based on role/permissions [Implemented]
+  - Token revocation via Redis (logout invalidates the token server-side) [Implemented]
+  - User roles management UI [Planned]
+  - User permissions management UI [Planned]
 - **Team Management**: [Planned]
   - Create, view, update, and delete teams.
   - Assign users to teams.
@@ -27,23 +34,27 @@ Enterprise Ticket Management — a work-in-progress internal web application for
 
 ## Tech Stack
 
-### Frontend (Core Features Scaffolding Completed)
-- **Framework**: Angular 18
+### Frontend
+- **Framework**: Angular 18 (standalone components)
 - **Language**: TypeScript
 - **State Management**: NgRx (Planned)
-- **Routing**: Angular Router
-- **UI Components**: DevExtreme & Tailwind CSS (Planned/WIP)
+- **Routing**: Angular Router (with auth guard)
+- **UI Components**: DevExtreme + Tailwind CSS
 - **HTTP Client**: Angular HttpClient
+- **Auth**: JWT decoded client-side; permissions extracted and used to filter sidebar navigation
 
-### Backend (Auth & User API Ready)
+### Backend
 - **Framework**: ASP.NET Core (.NET 8)
 - **Database**: PostgreSQL (Dockerized)
-- **ORM**: Entity Framework Core
+- **ORM**: Entity Framework Core (code-first migrations, seeded roles + permission claims)
 - **Authentication**: JWT Bearer + ASP.NET Core Identity
-- **API Gateway**: YARP (Yet Another Reverse Proxy)
+- **Authorization**: Claims-based; gateway enforces per-route; Admin bypasses all
+- **Token Revocation**: Redis (StackExchange.Redis) — revoked tokens stored until expiry
+- **API Gateway**: YARP (Yet Another Reverse Proxy) with custom `GatewayAuthorizationMiddleware`
 - **Error Tracking**: Sentry SDK
 - **Mapping**: AutoMapper
 - **Documentation**: Swagger / OpenAPI
+- **Caching / Session Store**: Redis
 
 ## Prerequisites
 
@@ -66,7 +77,7 @@ After running the migrations, you can create an admin user via the API or use th
 ### API Documentation
 
 Interactive API documentation (Swagger UI) is available at:
-`http://localhost:5002/swagger` - Identity API
+`http://localhost:5001/swagger`
 
 ## Project Structure
 
@@ -87,7 +98,7 @@ Enterprise-Ticket-Management/
 │       │
 │       ├── Application/
 │       │   ├── Services/                 # AuthService, UserService, LoggerManager, ServiceManager
-│       │   │   └── Contracts/            # IAuthService, IUserService, IServiceManager, ILoggerManager
+│       │   │   └── Contracts/            # IAuthService,IUserService,IServiceManager,ILoggerManager
 │       │   └── MappingProfile.cs         # AutoMapper profiles
 │       │
 │       ├── Entities/
@@ -112,7 +123,12 @@ Enterprise-Ticket-Management/
 │       │   └── app.config.ts         # App configuration
 │       │
 │       ├── core/
-│       │   └── services/             # NavService (navigation state)
+│       │   ├── services/             # NavService, AuthService (JWT decode + permissions)
+│       │   └── guards/               # Auth guard (route protection)
+│       │
+│       ├── Models/
+│       │   ├── Auth/                 # LoginResponse, TokenDto
+│       │   └── Users/                # UserInfo (name, role, permissions[])
 │       │
 │       ├── features/
 │       │   ├── auth/login/           # Login page
@@ -122,7 +138,7 @@ Enterprise-Ticket-Management/
 │       │   └── settings/             # Settings page
 │       │
 │       └── shared/
-│           └── components/Layout/    # App shell (sidebar, toolbar, navigation)
+│           └── components/Layout/    # App shell — sidebar filters tabs by role/permission
 │
 ├── https/                            # Dev SSL certificate for Kestrel (Docker)
 ├── docker-compose.yml                # PostgreSQL, Backend, Frontend, pgAdmin
@@ -141,14 +157,15 @@ Refactor the current monolithic backend into three focused microservices. Each s
 
 |      Service       |                  Responsibility                       |      Status      |
 |--------------------|-------------------------------------------------------|------------------|
-| `identity-service` | Authentication, JWT issuance & user management        | **Implemented**  |
-| `ticket-service`   | Ticket lifecycle, teams, assignments & workflows      | Planned          |
-| `api-gateway`      | Single entry point, routing & rate limiting           | **Implemented**  |
+| `identity-service` | Authentication, JWT issuance, user management & claims| **Implemented**  |
+| `ticket-service`   | Ticket lifecycle, teams, assignments & workflows      |  **Planned**     |
+| `api-gateway`      | Single entry point, JWT validation                    | **Implemented**  |
 
 **Key decisions / technologies to evaluate:**
 - **Inter-service communication**: REST (synchronous) [Implemented]
                                    Message broker **RabbitMQ** (async events) [Planned]
-- **API Gateway**: YARP (Yet Another Reverse Proxy) for .NET or AWS API Gateway [Implemented]
+- **API Gateway**: YARP with custom `GatewayAuthorizationMiddleware` [Implemented]
+- **Token revocation store**: Redis (local Docker) [Implemented]
 - **Service discovery**: Docker Compose (local) [Implemented]
                        → AWS ECS Service Connect or AWS Cloud Map (production) [Planned]
 ---

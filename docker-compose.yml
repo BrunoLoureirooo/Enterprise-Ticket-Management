@@ -32,6 +32,8 @@ services:
       - ASPNETCORE_Kestrel__Certificates__Default__Password=DevCertPassword123!
       - IdentityApiUrl=https://ticket-backend-identity:8443
       - Sentry__Dsn=${SENTRY_DSN_GATEWAY}
+      - Redis__ConnectionString=ticket-redis:6379
+      - SECRET=${SECRET}
     ports:
       - "5001:8443"
     volumes:
@@ -39,9 +41,13 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - ticket-network
     restart: unless-stopped
+    env_file:
+      - .env
 
   # ASP.NET Core Backend Identity API (.NET 8)
   backend:
@@ -60,16 +66,32 @@ services:
       - JwtSettings__Audience=TicketManagementClient
       - JwtSettings__ExpiryMinutes=60
       - Sentry__Dsn=${SENTRY_DSN_IDENTITY}
+      - Redis__ConnectionString=ticket-redis:6379
     volumes:
       - ./https:/https:ro
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - ticket-network
     restart: unless-stopped
     env_file:
       - .env
+
+  # Redis — token revocation blocklist, permission hash cache, rate limiting
+  redis:
+    image: redis:7-alpine
+    container_name: ticket-redis
+    networks:
+      - ticket-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
   # Angular Frontend
   frontend:

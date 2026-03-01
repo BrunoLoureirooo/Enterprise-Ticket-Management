@@ -66,6 +66,22 @@
     padding: 0 !important;
 }
 
+/* Prevent long names from breaking sidebar layout */
+::ng-deep .dx-drop-down-button {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+::ng-deep .dx-drop-down-button .dx-button {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+::ng-deep .dx-drop-down-button .dx-button-content > div {
+    min-width: 0;
+    overflow: hidden;
+}
+
 ::ng-deep .dx-drop-down-button-popup-wrapper .dx-list-item-content,
 ::ng-deep .dx-drop-down-button-popup-wrapper .dx-icon,
 ::ng-deep .dx-overlay-wrapper .dx-drop-down-button-popup-wrapper .dx-list-item .dx-icon {

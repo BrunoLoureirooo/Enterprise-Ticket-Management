@@ -24,10 +24,12 @@ namespace backend.Application.Services
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IOptions<JwtConfiguration> _configuration;
         private readonly JwtConfiguration _jwtConfiguration;
+        private readonly IClaimEnricher[] _claimEnrichers;
+        private readonly ITokenRevocationService _revocation;
 
 
         //Contructors
-        public AuthenticationService(ILoggerManager logger, IMapper mapper, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IOptions<JwtConfiguration> configuration)
+        public AuthenticationService(ILoggerManager logger, IMapper mapper, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IOptions<JwtConfiguration> configuration, IEnumerable<IClaimEnricher> claimEnrichers, ITokenRevocationService revocation)
         {
             _logger = logger;
             _mapper = mapper;
@@ -35,6 +37,8 @@ namespace backend.Application.Services
             _roleManager = roleManager;
             _configuration = configuration;
             _jwtConfiguration = _configuration.Value;
+            _claimEnrichers = claimEnrichers.ToArray();
+            _revocation = revocation;
         }
 
 
@@ -94,6 +98,15 @@ namespace backend.Application.Services
             await _userManager.UpdateAsync(user);
 
             var accessToken = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+            var tokenLifetime = TimeSpan.FromMinutes(Convert.ToDouble(_jwtConfiguration.Expires));
+
+            // Track JTI so it can be revoked later (explicit logout or permission change)
+            var jti = claims.First(c => c.Type == JwtRegisteredClaimNames.Jti).Value;
+            await _revocation.TrackJtiAsync(user.Id, jti, tokenLifetime);
+
+            // Write permissions hash — gateway compares this on every request
+            var permHash = claims.First(c => c.Type == "perm_hash").Value;
+            await _revocation.SetPermissionsHashAsync(user.Id, permHash, tokenLifetime);
 
             return new TokenDto(accessToken, refreshToken);
         }
@@ -186,32 +199,49 @@ namespace backend.Application.Services
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Nome!),
-                new Claim(ClaimTypes.Email, user.Email!),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Uri, user.ImageUrl ?? "NA"),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(ClaimTypes.Name,             user.Nome!),
+                new Claim(ClaimTypes.Email,            user.Email!),
+                new Claim(ClaimTypes.NameIdentifier,   user.Id.ToString()),
+                new Claim(ClaimTypes.Uri,              user.ImageUrl ?? ""),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
 
             var userClaims = await _userManager.GetClaimsAsync(user);
             claims.AddRange(userClaims);
 
             var roles = await _userManager.GetRolesAsync(user);
+            var allPermissions = new HashSet<string>();
 
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
 
                 var roleEntity = await _roleManager.FindByNameAsync(role);
-                if (roleEntity != null)
+                if (roleEntity == null) continue;
+
+                var roleClaims = await _roleManager.GetClaimsAsync(roleEntity);
+                foreach (var rc in roleClaims)
                 {
-                    var roleClaims = await _roleManager.GetClaimsAsync(roleEntity);
-                    claims.AddRange(roleClaims);
+                    claims.Add(new Claim("permissions", rc.Value));
+                    allPermissions.Add(rc.Value);
                 }
             }
 
+            // Contextual attributes from external services (dept, org_id, etc.)
+            // Each IClaimEnricher handles one domain service. Register new ones in Program.cs.
+            foreach (var enricher in _claimEnrichers)
+            {
+                var enriched = await enricher.EnrichAsync(user.Id);
+                claims.AddRange(enriched);
+            }
+
+            var permissionString = string.Join(",", allPermissions.OrderBy(p => p));
+            var hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(permissionString));
+            claims.Add(new Claim("perm_hash", Convert.ToHexString(hashBytes).ToLower()));
+
             return claims;
         }
+
         private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
         {
             var tokenOptions = new JwtSecurityToken

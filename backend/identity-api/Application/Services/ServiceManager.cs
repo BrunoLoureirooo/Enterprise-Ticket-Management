@@ -12,16 +12,30 @@ namespace backend.Application.Services
     {
         private readonly Lazy<IAuthenticationService> _authenticationService;
         private readonly Lazy<IUserService> _userService;
+        private readonly Lazy<IRoleService> _roleService;
 
-        public ServiceManager(IRepositoryManager repositoryManager, ILoggerManager logger, IMapper mapper, 
+        public ServiceManager(
+            IRepositoryManager repositoryManager,
+            ILoggerManager logger,
+            IMapper mapper,
             UserManager<ApplicationUser> userManager,
             RoleManager<ApplicationRole> roleManager,
-            IOptions<JwtConfiguration> configuration)
+            IOptions<JwtConfiguration> configuration,
+            IEnumerable<IClaimEnricher> claimEnrichers,
+            ITokenRevocationService revocation)
         {
-            _authenticationService = new Lazy<IAuthenticationService>(() =>new AuthenticationService(logger, mapper, userManager, roleManager, configuration));
-            _userService = new Lazy<IUserService>(() =>new UserService(logger, mapper, userManager));
+            _authenticationService = new Lazy<IAuthenticationService>(() =>
+                new AuthenticationService(logger, mapper, userManager, roleManager, configuration, claimEnrichers, revocation));
+
+            _userService = new Lazy<IUserService>(() =>
+                new UserService(logger, mapper, userManager));
+
+            _roleService = new Lazy<IRoleService>(() =>
+                new RoleService(roleManager, userManager, revocation, configuration));
         }
+
         public IAuthenticationService AuthenticationService => _authenticationService.Value;
         public IUserService UserService => _userService.Value;
+        public IRoleService RoleService => _roleService.Value;
     }
 }

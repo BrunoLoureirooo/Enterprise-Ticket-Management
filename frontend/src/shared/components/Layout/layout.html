@@ -40,7 +40,9 @@
                             </div>
                         </ng-template>
                         <div class="min-w-0 overflow-hidden text-left">
-                            <p class="text-sm font-medium text-white truncate">{{ currentUser.name }}</p>
+                            <p
+                                [class]="(displayName.length > 20 ? 'text-xs' : 'text-sm') + ' font-medium text-white truncate'">
+                                {{ displayName }}</p>
                             <p class="text-xs text-gray-400 truncate">{{ currentUser.role }}</p>
                         </div>
                     </div>

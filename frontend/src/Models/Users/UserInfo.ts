@@ -3,4 +3,5 @@ export interface UserInfo {
     email: string;
     role: string;
     avatarUrl: string;
+    permissions: string[];
 }
