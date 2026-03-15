@@ -18,12 +18,15 @@ builder.WebHost.UseSentry();
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
-// Add CORS
+// Add CORS — origins from config (appsettings.Production.json overrides for Azure)
+var corsOrigins = (builder.Configuration["CorsOrigins"] ?? "http://localhost:4200,https://localhost:4200")
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("CorsPolicy", builder =>
-        builder
-        .WithOrigins("http://localhost:4200", "https://localhost:4200")
+    options.AddPolicy("CorsPolicy", policy =>
+        policy
+        .WithOrigins(corsOrigins)
         .AllowAnyMethod()
         .AllowAnyHeader());
 });

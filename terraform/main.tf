@@ -113,6 +113,10 @@ resource "azurerm_container_app" "identity" {
       latest_revision = true
     }
   }
+
+  lifecycle {
+    ignore_changes = [template[0].container[0].image]
+  }
 }
 
 # Gateway API
@@ -153,6 +157,14 @@ resource "azurerm_container_app" "gateway" {
         name        = "Sentry__Dsn"
         secret_name = "sentry-dsn-gateway"
       }
+      env {
+        name  = "CorsOrigins"
+        value = "https://${azurerm_container_app.frontend.ingress[0].fqdn}"
+      }
+      env {
+        name  = "ReverseProxy__Clusters__identity-cluster__Destinations__destination1__Address"
+        value = "http://${azurerm_container_app.identity.name}/"
+      }
     }
   }
 
@@ -176,6 +188,10 @@ resource "azurerm_container_app" "gateway" {
       percentage      = 100
       latest_revision = true
     }
+  }
+
+  lifecycle {
+    ignore_changes = [template[0].container[0].image]
   }
 }
 
@@ -207,5 +223,9 @@ resource "azurerm_container_app" "frontend" {
       percentage      = 100
       latest_revision = true
     }
+  }
+
+  lifecycle {
+    ignore_changes = [template[0].container[0].image]
   }
 }
