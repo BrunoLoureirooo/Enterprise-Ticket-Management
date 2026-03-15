@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import { DxDataGridModule, DxToolbarModule } from 'devextreme-angular';
 import { ToastService } from '../../core/services/toast.service';
@@ -29,7 +29,7 @@ export class Users implements OnInit {
 
   async GetUsers() {
     try {
-      return lastValueFrom(this.http.get('https://localhost:5001/api/User'));
+      return lastValueFrom(this.http.get('/api/User'));
     } catch (error: any) {
       this.toastService.error(error.message ?? 'Failed to load users');
       throw error;

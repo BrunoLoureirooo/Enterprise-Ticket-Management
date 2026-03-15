@@ -24,8 +24,8 @@ RUN rm -rf ./*
 # Copy built Angular app from build stage
 COPY --from=build /app/dist/frontend/browser .
 
-# Copy custom nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy production nginx configuration
+COPY nginx.prod.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 80
 EXPOSE 80
