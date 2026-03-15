@@ -34,3 +34,10 @@ frontend/ssl/
 
 # Backend secrets
 backend/API/appsettings.json
+
+# Terraform — never commit secrets or local state
+terraform/terraform.tfvars
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
