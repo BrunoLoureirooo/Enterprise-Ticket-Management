@@ -62,7 +62,7 @@ resource "azurerm_container_app" "identity" {
         secret_name = "db-connection-string"
       }
       env {
-        name        = "JwtSettings__Secret"
+        name        = "SECRET"
         secret_name = "jwt-secret"
       }
       env {

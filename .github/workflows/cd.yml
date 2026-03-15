@@ -57,17 +57,7 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
-            # Register ghcr.io credentials on each app
-            for app in ca-identity ca-gateway ca-frontend; do
-              az containerapp registry set \
-                --name $app \
-                --resource-group rg-ticket-mgmt \
-                --server ghcr.io \
-                --username ${{ github.actor }} \
-                --password ${{ secrets.GITHUB_TOKEN }}
-            done
-
-            # Update each app with the new image
+            # Images are public on ghcr.io — no registry credentials needed
             az containerapp update \
               --name ca-identity \
               --resource-group rg-ticket-mgmt \
