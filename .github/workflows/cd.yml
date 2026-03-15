@@ -52,41 +52,33 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy identity to Container Apps
+      - name: Deploy to Container Apps
         uses: azure/cli@v1
         with:
           azcliversion: latest
           inlineScript: |
+            # Register ghcr.io credentials on each app
+            for app in ca-identity ca-gateway ca-frontend; do
+              az containerapp registry set \
+                --name $app \
+                --resource-group rg-ticket-mgmt \
+                --server ghcr.io \
+                --username ${{ github.actor }} \
+                --password ${{ secrets.GITHUB_TOKEN }}
+            done
+
+            # Update each app with the new image
             az containerapp update \
               --name ca-identity \
               --resource-group rg-ticket-mgmt \
-              --image ${{ env.IMAGE_PREFIX }}-identity:latest \
-              --registry-server ghcr.io \
-              --registry-username ${{ github.actor }} \
-              --registry-password ${{ secrets.GITHUB_TOKEN }}
+              --image ${{ env.IMAGE_PREFIX }}-identity:latest
 
-      - name: Deploy gateway to Container Apps
-        uses: azure/cli@v1
-        with:
-          azcliversion: latest
-          inlineScript: |
             az containerapp update \
               --name ca-gateway \
               --resource-group rg-ticket-mgmt \
-              --image ${{ env.IMAGE_PREFIX }}-gateway:latest \
-              --registry-server ghcr.io \
-              --registry-username ${{ github.actor }} \
-              --registry-password ${{ secrets.GITHUB_TOKEN }}
+              --image ${{ env.IMAGE_PREFIX }}-gateway:latest
 
-      - name: Deploy frontend to Container Apps
-        uses: azure/cli@v1
-        with:
-          azcliversion: latest
-          inlineScript: |
             az containerapp update \
               --name ca-frontend \
               --resource-group rg-ticket-mgmt \
-              --image ${{ env.IMAGE_PREFIX }}-frontend:latest \
-              --registry-server ghcr.io \
-              --registry-username ${{ github.actor }} \
-              --registry-password ${{ secrets.GITHUB_TOKEN }}
+              --image ${{ env.IMAGE_PREFIX }}-frontend:latest

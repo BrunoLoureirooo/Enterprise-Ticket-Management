@@ -69,7 +69,7 @@ Enterprise Ticket Management — a work-in-progress internal web application for
 - **Orchestration**: Docker Compose
 - **Database**: PostgreSQL 17 (Alpine)
 - **Cache**: Redis 7 (Alpine)
-- **SSL**: Self-signed Kestrel certificates for local HTTPS
+- **SSL**: Self-signed Kestrel certificates for local HTTPS 
 
 ## Prerequisites
 
