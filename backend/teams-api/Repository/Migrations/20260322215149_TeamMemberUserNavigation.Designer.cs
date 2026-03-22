@@ -2,18 +2,21 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using ticket.Repository;
+using teams.Repository;
 
 #nullable disable
 
 namespace Repository.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    partial class RepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20260322215149_TeamMemberUserNavigation")]
+    partial class TeamMemberUserNavigation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,39 +25,47 @@ namespace Repository.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("ticket.Entities.Models.SyncedProject", b =>
+            modelBuilder.Entity("teams.Entities.Models.Project", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Projects");
+                });
+
+            modelBuilder.Entity("teams.Entities.Models.ProjectTeam", b =>
                 {
                     b.Property<Guid>("ProjectId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.HasKey("ProjectId");
-
-                    b.ToTable("SyncedProjects");
-                });
-
-            modelBuilder.Entity("ticket.Entities.Models.SyncedTeam", b =>
-                {
                     b.Property<Guid>("TeamId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                    b.HasKey("ProjectId", "TeamId");
 
-                    b.HasKey("TeamId");
+                    b.HasIndex("TeamId");
 
-                    b.ToTable("SyncedTeams");
+                    b.ToTable("ProjectTeams");
                 });
 
-            modelBuilder.Entity("ticket.Entities.Models.SyncedUser", b =>
+            modelBuilder.Entity("teams.Entities.Models.SyncedUser", b =>
                 {
                     b.Property<Guid>("UserId")
                         .ValueGeneratedOnAdd()
@@ -137,58 +148,19 @@ namespace Repository.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ticket.Entities.Models.TeamMembership", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("TeamId")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("IsLeader")
-                        .HasColumnType("boolean");
-
-                    b.HasKey("UserId", "TeamId");
-
-                    b.ToTable("TeamMemberships");
-                });
-
-            modelBuilder.Entity("ticket.Entities.Models.Ticket", b =>
+            modelBuilder.Entity("teams.Entities.Models.Team", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("AssignedToId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("ClosedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("CreatedById")
-                        .HasColumnType("uuid");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<string>("Priority")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("ProjectId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("TeamId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Title")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
@@ -198,7 +170,78 @@ namespace Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tickets", (string)null);
+                    b.ToTable("Teams");
+                });
+
+            modelBuilder.Entity("teams.Entities.Models.TeamMember", b =>
+                {
+                    b.Property<Guid>("TeamId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsLeader")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("TeamId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TeamMembers");
+                });
+
+            modelBuilder.Entity("teams.Entities.Models.ProjectTeam", b =>
+                {
+                    b.HasOne("teams.Entities.Models.Project", "Project")
+                        .WithMany("ProjectTeams")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("teams.Entities.Models.Team", "Team")
+                        .WithMany("ProjectTeams")
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+
+                    b.Navigation("Team");
+                });
+
+            modelBuilder.Entity("teams.Entities.Models.TeamMember", b =>
+                {
+                    b.HasOne("teams.Entities.Models.Team", "Team")
+                        .WithMany("Members")
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("teams.Entities.Models.SyncedUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Team");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("teams.Entities.Models.Project", b =>
+                {
+                    b.Navigation("ProjectTeams");
+                });
+
+            modelBuilder.Entity("teams.Entities.Models.Team", b =>
+                {
+                    b.Navigation("Members");
+
+                    b.Navigation("ProjectTeams");
                 });
 #pragma warning restore 612, 618
         }

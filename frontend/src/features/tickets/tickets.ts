@@ -31,6 +31,8 @@ export class Tickets implements OnInit {
   protected projects = signal<any[]>([]);
   protected teamMembers = signal<any[]>([]);
   protected selectedTeamId = signal<string | null>(null);
+  protected selectedProjectId = signal<string | null>(null);
+  protected selectedAssigneeId = signal<string | null>(null);
   protected loading = signal(true);
 
   readonly statusOptions = ['Open', 'InProgress', 'Resolved', 'Closed'];
@@ -43,9 +45,7 @@ export class Tickets implements OnInit {
   }
 
   get assigneeOptions(): any[] {
-    const members = this.teamMembers();
-    if (!members.length) return this.users();
-    return members.map(m => this.users().find(u => u.id === m.userId) ?? { id: m.userId, name: m.userId });
+    return this.teamMembers().map(m => ({ id: m.userId, nome: m.nome || m.userId }));
   }
 
   async ngOnInit() {
@@ -96,12 +96,16 @@ export class Tickets implements OnInit {
 
   onInitNewRow() {
     this.selectedTeamId.set(null);
+    this.selectedProjectId.set(null);
+    this.selectedAssigneeId.set(null);
     this.teamMembers.set([]);
   }
 
   onEditingStart(e: any) {
     const teamId = e.data?.teamId ?? null;
     this.selectedTeamId.set(teamId);
+    this.selectedProjectId.set(e.data?.projectId ?? null);
+    this.selectedAssigneeId.set(e.data?.assignedToId ?? null);
     if (teamId) {
       this.loadTeamMembers(teamId);
     } else {
@@ -109,11 +113,11 @@ export class Tickets implements OnInit {
     }
   }
 
-  async onTeamChange(e: any, form: any) {
-    form.updateData('teamId', e.value);
-    form.updateData('projectId', null);
-    form.updateData('assignedToId', null);
+  async onTeamChange(e: any, _form: any) {
+    if (!e.event) return;
     this.selectedTeamId.set(e.value);
+    this.selectedProjectId.set(null);
+    this.selectedAssigneeId.set(null);
     if (e.value) {
       await this.loadTeamMembers(e.value);
     } else {
@@ -121,12 +125,14 @@ export class Tickets implements OnInit {
     }
   }
 
-  onProjectChange(e: any, form: any) {
-    form.updateData('projectId', e.value);
+  onProjectChange(e: any, _form: any) {
+    if (!e.event) return;
+    this.selectedProjectId.set(e.value);
   }
 
-  onAssigneeChange(e: any, form: any) {
-    form.updateData('assignedToId', e.value);
+  onAssigneeChange(e: any, _form: any) {
+    if (!e.event) return;
+    this.selectedAssigneeId.set(e.value);
   }
 
   async onSaving(e: any) {
@@ -134,15 +140,22 @@ export class Tickets implements OnInit {
     const change = e.changes[0];
     if (!change) return;
 
+    const customFields = {
+      teamId: this.selectedTeamId(),
+      projectId: this.selectedProjectId(),
+      assignedToId: this.selectedAssigneeId(),
+    };
+
     try {
       if (change.type === 'insert') {
-        await lastValueFrom(this.http.post('/api/Ticket', change.data));
+        await lastValueFrom(this.http.post('/api/Ticket', { ...change.data, ...customFields }));
       } else if (change.type === 'update') {
-        await lastValueFrom(this.http.put(`/api/Ticket/${change.key}`, change.data));
+        const original = this.tickets().find((t: any) => t.id === change.key) ?? {};
+        await lastValueFrom(this.http.put(`/api/Ticket/${change.key}`, { ...original, ...change.data, ...customFields }));
       } else if (change.type === 'remove') {
         await lastValueFrom(this.http.delete(`/api/Ticket/${change.key}`));
       }
-      e.component.cancelEditData();
+      setTimeout(() => e.component.cancelEditData());
       await this.loadTickets();
     } catch (err: any) {
       this.toastService.error(err.message ?? 'Operation failed');

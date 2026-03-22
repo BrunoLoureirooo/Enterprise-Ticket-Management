@@ -13,7 +13,10 @@ export const permissionGuard: CanActivateFn = (route) => {
     const required = route.data['permission'] as string | undefined;
     if (!required) return true;
 
-    if (required === 'ticket.read' && user.isTeamLeader) return true;
+    // Tickets page is restricted to team leaders; regular employees use /my-tickets
+    if (required === 'ticket.read') {
+        return user.isTeamLeader ? true : router.createUrlTree(['/']);
+    }
 
     return user.permissions.includes(required)
         ? true

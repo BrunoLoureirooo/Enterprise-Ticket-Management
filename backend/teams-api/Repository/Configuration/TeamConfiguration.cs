@@ -21,6 +21,11 @@ namespace teams.Repository.Configuration
             builder.HasOne(m => m.Team)
                    .WithMany(t => t.Members)
                    .HasForeignKey(m => m.TeamId);
+            builder.HasOne(m => m.User)
+                   .WithMany()
+                   .HasForeignKey(m => m.UserId)
+                   .HasPrincipalKey(u => u.UserId)
+                   .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

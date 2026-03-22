@@ -34,18 +34,19 @@
             [rowAlternationEnabled]="true"
             [columnAutoWidth]="true"
             [loadPanel]="{ enabled: loading(), text: 'Loading teams...' }"
-            (onRowExpanded)="onTeamRowExpanded($event)"
+            (onInitNewRow)="onTeamsInitNewRow()"
+            (onEditingStart)="onTeamsEditingStart($event)"
             (onSaving)="onTeamsSaving($event)">
 
             <dxo-editing mode="popup" [allowAdding]="canWrite" [allowUpdating]="canWrite" [allowDeleting]="canDelete" [useIcons]="true">
-                <dxo-popup title="Team" [showTitle]="true" [width]="500" height="auto"></dxo-popup>
+                <dxo-popup title="Team" [showTitle]="true" [width]="600" height="auto"></dxo-popup>
                 <dxo-form [colCount]="1">
                     <dxi-item dataField="name" />
                     <dxi-item dataField="description" editorType="dxTextArea" [editorOptions]="{ height: 80 }" />
+                    <dxi-item template="membersEditor" [label]="{ text: 'Members' }" />
                 </dxo-form>
             </dxo-editing>
 
-            <dxo-master-detail [enabled]="true" template="memberDetail" />
             <dxo-filter-row [visible]="true" />
             <dxo-paging [pageSize]="10" />
             <dxo-pager [visible]="true" [showPageSizeSelector]="true" [allowedPageSizes]="[10, 25]" [showInfo]="true" />
@@ -57,53 +58,44 @@
             <dxi-column dataField="name" caption="Name" />
             <dxi-column dataField="description" caption="Description" />
 
-            <!-- Master-detail: members -->
-            <div *dxTemplate="let detail of 'memberDetail'">
-                <div class="p-4">
-                    <p class="font-semibold text-sm mb-3">Members</p>
-
-                    <dx-data-grid
-                        [dataSource]="getMembersForTeam(detail.key)"
-                        [showBorders]="false"
-                        [showColumnLines]="false"
-                        [columnAutoWidth]="true"
-                        [rowAlternationEnabled]="false">
-                        <dxo-paging [enabled]="false" />
-                        <dxi-column type="buttons" [width]="50">
-                            <dxi-button icon="trash" hint="Remove" [onClick]="onRemoveMemberClick" />
-                        </dxi-column>
-                        <dxi-column dataField="name" caption="Name" />
-                        <dxi-column dataField="isLeader" caption="Leader" dataType="boolean" [width]="80" />
-                        <dxi-column dataField="joinedAt" caption="Joined" dataType="datetime" [width]="160" />
-                    </dx-data-grid>
-
-                    <!-- Add member form -->
-                    <div [hidden]="!canWrite" class="flex gap-3 items-center mt-3 border-t pt-3">
+            <div *dxTemplate="let data of 'membersEditor'">
+                @if (editingTeamId()) {
+                    <!-- Existing members -->
+                    @for (member of editingTeamMembers(); track member.userId) {
+                        <div class="flex items-center justify-between py-1 px-2 mb-1 bg-gray-50 rounded text-sm">
+                            <span>{{ member.nome }}</span>
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs text-blue-600" [style.visibility]="member.isLeader ? 'visible' : 'hidden'">Leader</span>
+                                <dx-button icon="trash" stylingMode="text" (onClick)="removeMember(member.userId)" />
+                            </div>
+                        </div>
+                    } @empty {
+                        <p class="text-sm text-gray-400 mb-2">No members yet.</p>
+                    }
+                    <!-- Add member -->
+                    <div class="flex gap-2 items-center mt-2 pt-2 border-t border-gray-200">
                         <dx-select-box
-                            [dataSource]="users()"
-                            [value]="getAddMemberState(detail.key).userId"
-                            displayExpr="name"
+                            [dataSource]="usersArray"
+                            displayExpr="nome"
                             valueExpr="id"
                             placeholder="Select user..."
+                            [value]="newMemberUserId"
+                            (onValueChanged)="newMemberUserId = $event.value"
                             [searchEnabled]="true"
-                            [width]="280"
-                            (onValueChanged)="setAddMemberUserId(detail.key, $event.value)">
-                        </dx-select-box>
-                        <label class="flex items-center gap-2 text-sm text-gray-600">
-                            <dx-check-box
-                                [value]="getAddMemberState(detail.key).isLeader"
-                                (onValueChanged)="setAddMemberIsLeader(detail.key, $event.value)">
-                            </dx-check-box>
-                            Leader
-                        </label>
+                            [width]="220" />
+                        <dx-check-box
+                            text="Leader"
+                            [value]="newMemberIsLeader"
+                            (onValueChanged)="newMemberIsLeader = $event.value" />
                         <dx-button
                             text="Add"
                             type="default"
                             stylingMode="contained"
-                            (onClick)="addMember(detail.key)">
-                        </dx-button>
+                            (onClick)="addMember()" />
                     </div>
-                </div>
+                } @else {
+                    <span class="text-sm text-gray-400">Save the team first, then edit it to manage members.</span>
+                }
             </div>
         </dx-data-grid>
     </div>
@@ -116,13 +108,16 @@
             [showBorders]="true"
             [rowAlternationEnabled]="true"
             [columnAutoWidth]="true"
+            (onInitNewRow)="onProjectsInitNewRow()"
+            (onEditingStart)="onProjectsEditingStart($event)"
             (onSaving)="onProjectsSaving($event)">
 
             <dxo-editing mode="popup" [allowAdding]="canWriteProject" [allowUpdating]="canWriteProject" [allowDeleting]="canDeleteProject" [useIcons]="true">
-                <dxo-popup title="Project" [showTitle]="true" [width]="500" height="auto"></dxo-popup>
+                <dxo-popup title="Project" [showTitle]="true" [width]="600" height="auto"></dxo-popup>
                 <dxo-form [colCount]="1">
                     <dxi-item dataField="name" />
                     <dxi-item dataField="description" editorType="dxTextArea" [editorOptions]="{ height: 80 }" />
+                    <dxi-item template="projectTeamsEditor" [label]="{ text: 'Assigned Teams' }" />
                 </dxo-form>
             </dxo-editing>
 
@@ -136,6 +131,39 @@
             </dxi-column>
             <dxi-column dataField="name" caption="Name" />
             <dxi-column dataField="description" caption="Description" />
+
+            <div *dxTemplate="let data of 'projectTeamsEditor'">
+                @if (editingProjectId()) {
+                    <!-- Existing team assignments -->
+                    @for (team of editingProjectTeams(); track team.teamId) {
+                        <div class="flex items-center justify-between py-1 px-2 mb-1 bg-gray-50 rounded text-sm">
+                            <span>{{ team.name }}</span>
+                            <dx-button icon="trash" stylingMode="text" (onClick)="removeProjectTeam(team.teamId)" />
+                        </div>
+                    } @empty {
+                        <p class="text-sm text-gray-400 mb-2">No teams assigned yet.</p>
+                    }
+                    <!-- Add team -->
+                    <div class="flex gap-2 items-center mt-2 pt-2 border-t border-gray-200">
+                        <dx-select-box
+                            [dataSource]="teams()"
+                            displayExpr="name"
+                            valueExpr="id"
+                            placeholder="Select team..."
+                            [value]="newProjectTeamId"
+                            (onValueChanged)="newProjectTeamId = $event.value"
+                            [searchEnabled]="true"
+                            [width]="280" />
+                        <dx-button
+                            text="Add"
+                            type="default"
+                            stylingMode="contained"
+                            (onClick)="addProjectTeam()" />
+                    </div>
+                } @else {
+                    <span class="text-sm text-gray-400">Save the project first, then edit it to assign teams.</span>
+                }
+            </div>
         </dx-data-grid>
     </div>
 </div>

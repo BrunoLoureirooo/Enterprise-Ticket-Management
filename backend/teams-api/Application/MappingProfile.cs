@@ -14,7 +14,8 @@ namespace teams.Application
             CreateMap<Team, TeamDto>();
             CreateMap<CreateTeamDto, Team>();
 
-            CreateMap<TeamMember, TeamMemberDto>();
+            CreateMap<TeamMember, TeamMemberDto>()
+                .ForMember(d => d.Nome, o => o.MapFrom(s => s.User != null ? s.User.Name : string.Empty));
 
             CreateMap<Project, ProjectDto>()
                 .ForMember(d => d.TeamIds, o => o.MapFrom(s => s.ProjectTeams.Select(pt => pt.TeamId)));

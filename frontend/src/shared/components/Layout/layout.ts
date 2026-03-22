@@ -32,7 +32,7 @@ export class Layout {
     }
   }
 
-  readonly menuItems: { id: number; text: string; icon: string; path: string; permission: string | null }[];
+  readonly menuItems: { id: number; text: string; icon: string; path: string; permission: string | null; leaderOrAdminOnly?: boolean }[];
 
   constructor() {
     const isAdmin = this.currentUser?.role === 'Admin';
@@ -40,17 +40,15 @@ export class Layout {
     const permissions = this.currentUser?.permissions ?? [];
     this.menuItems = [
       { id: 1, text: 'Dashboard', icon: 'bi bi-house-door', path: '', permission: null },
-      { id: 2, text: 'Tickets', icon: 'bi bi-ticket-perforated', path: '/tickets', permission: 'ticket.read' },
+      { id: 2, text: 'Tickets', icon: 'bi bi-ticket-perforated', path: '/tickets', permission: 'ticket.read', leaderOrAdminOnly: true },
       { id: 3, text: 'My Tickets', icon: 'bi bi-clipboard-check', path: '/my-tickets', permission: null },
       { id: 4, text: 'Users', icon: 'bi bi-people', path: '/users', permission: 'user.read' },
       { id: 5, text: 'Roles', icon: 'bi bi-shield-lock', path: '/roles', permission: 'role.read' },
       { id: 6, text: 'Teams', icon: 'bi bi-diagram-3', path: '/teams', permission: 'teams.read' },
-    ].filter(item =>
-      item.permission === null ||
-      isAdmin ||
-      isTeamLeader ||
-      permissions.includes(item.permission!)
-    );
+    ].filter(item => {
+      if (item.leaderOrAdminOnly && !isAdmin && !isTeamLeader) return false;
+      return item.permission === null || isAdmin || isTeamLeader || permissions.includes(item.permission!);
+    });
   }
 
   get isOpen() {

@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
-import { CommonModule } from '@angular/common';
 import { DxDataGridModule, DxToolbarModule, DxSelectBoxModule, DxCheckBoxModule, DxButtonModule } from 'devextreme-angular';
 import { ToastService } from '../../core/services/toast.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -9,7 +8,7 @@ import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-teams',
   standalone: true,
-  imports: [CommonModule, DxDataGridModule, DxToolbarModule, DxSelectBoxModule, DxCheckBoxModule, DxButtonModule],
+  imports: [DxDataGridModule, DxToolbarModule, DxSelectBoxModule, DxCheckBoxModule, DxButtonModule],
   templateUrl: './teams.html',
 })
 export class Teams implements OnInit {
@@ -33,13 +32,20 @@ export class Teams implements OnInit {
   protected loading = signal(true);
   protected activeTab = signal<'teams' | 'projects'>('teams');
 
-  // Master-detail state keyed by teamId
-  protected teamDetails = signal<Record<string, any>>({});
-  protected addMemberState = signal<Record<string, { userId: string | null; isLeader: boolean }>>({});
+  // Plain arrays for DX select boxes — signals don't reliably propagate into *dxTemplate embedded views
+  protected usersArray: any[] = [];
+  protected teamsArray: any[] = [];
 
-  onRemoveMemberClick = (e: any) => {
-    this.removeMember(e.row.data.teamId, e.row.data.userId);
-  };
+  // Team edit popup state
+  protected editingTeamId = signal<string | null>(null);
+  protected editingTeamMembers = signal<any[]>([]);
+  protected newMemberUserId: string | null = null;
+  protected newMemberIsLeader = false;
+
+  // Project edit popup state
+  protected editingProjectId = signal<string | null>(null);
+  protected editingProjectTeams = signal<any[]>([]);
+  protected newProjectTeamId: string | null = null;
 
   async ngOnInit() {
     await Promise.all([this.loadTeams(), this.loadProjects(), this.loadUsers()]);
@@ -50,6 +56,7 @@ export class Teams implements OnInit {
     try {
       const data = await lastValueFrom(this.http.get<any[]>('/api/Teams'));
       this.teams.set(data);
+      this.teamsArray = data;
     } catch (e: any) {
       this.toastService.error(e.message ?? 'Failed to load teams');
     } finally {
@@ -68,109 +75,151 @@ export class Teams implements OnInit {
     try {
       const data = await lastValueFrom(this.http.get<any[]>('/api/User'));
       this.users.set(data);
-    } catch {}
+      this.usersArray = data;
+    } catch (e: any) {
+      this.toastService.error(e.message ?? 'Failed to load users');
+    }
+  }
+
+  // ── Teams ──────────────────────────────────────────────────────────────────
+
+  onTeamsInitNewRow() {
+    this.editingTeamId.set(null);
+    this.editingTeamMembers.set([]);
+    this.newMemberUserId = null;
+    this.newMemberIsLeader = false;
+  }
+
+  async onTeamsEditingStart(e: any) {
+    this.editingTeamId.set(e.key);
+    this.newMemberUserId = null;
+    this.newMemberIsLeader = false;
+    const [team] = await Promise.all([
+      lastValueFrom(this.http.get<any>(`/api/Teams/${e.key}`)),
+      this.loadUsers(),
+    ]);
+    this.editingTeamMembers.set(this.mapMembers(team.members ?? []));
   }
 
   async onTeamsSaving(e: any) {
     e.cancel = true;
     const change = e.changes[0];
-    if (!change) return;
     try {
-      if (change.type === 'insert') {
+      if (change?.type === 'insert') {
         await lastValueFrom(this.http.post('/api/Teams', change.data));
-      } else if (change.type === 'update') {
+      } else if (change?.type === 'update') {
         await lastValueFrom(this.http.put(`/api/Teams/${change.key}`, change.data));
-      } else if (change.type === 'remove') {
+      } else if (change?.type === 'remove') {
         await lastValueFrom(this.http.delete(`/api/Teams/${change.key}`));
       }
-      e.component.cancelEditData();
+      this.editingTeamId.set(null);
+      this.editingTeamMembers.set([]);
+      setTimeout(() => e.component.cancelEditData());
       await this.loadTeams();
     } catch (err: any) {
       this.toastService.error(err.message ?? 'Operation failed');
     }
   }
 
+  async addMember() {
+    const teamId = this.editingTeamId();
+    if (!teamId || !this.newMemberUserId) return;
+    try {
+      await lastValueFrom(this.http.post(`/api/Teams/${teamId}/members`, {
+        userId: this.newMemberUserId,
+        isLeader: this.newMemberIsLeader,
+      }));
+      const team = await lastValueFrom(this.http.get<any>(`/api/Teams/${teamId}`));
+      this.editingTeamMembers.set(this.mapMembers(team.members ?? []));
+      this.newMemberUserId = null;
+      this.newMemberIsLeader = false;
+    } catch (err: any) {
+      this.toastService.error(err.message ?? 'Failed to add member');
+    }
+  }
+
+  async removeMember(userId: string) {
+    const teamId = this.editingTeamId();
+    if (!teamId) return;
+    try {
+      await lastValueFrom(this.http.delete(`/api/Teams/${teamId}/members/${userId}`));
+      const team = await lastValueFrom(this.http.get<any>(`/api/Teams/${teamId}`));
+      this.editingTeamMembers.set(this.mapMembers(team.members ?? []));
+    } catch (err: any) {
+      this.toastService.error(err.message ?? 'Failed to remove member');
+    }
+  }
+
+  private mapMembers(members: any[]): any[] {
+    return members;
+  }
+
+  // ── Projects ───────────────────────────────────────────────────────────────
+
+  onProjectsInitNewRow() {
+    this.editingProjectId.set(null);
+    this.editingProjectTeams.set([]);
+    this.newProjectTeamId = null;
+  }
+
+  async onProjectsEditingStart(e: any) {
+    this.editingProjectId.set(e.key);
+    this.newProjectTeamId = null;
+    try {
+      const project = await lastValueFrom(this.http.get<any>(`/api/Projects/${e.key}`));
+      this.editingProjectTeams.set(this.mapProjectTeams(project.teamIds ?? []));
+    } catch {}
+  }
+
   async onProjectsSaving(e: any) {
     e.cancel = true;
     const change = e.changes[0];
-    if (!change) return;
     try {
-      if (change.type === 'insert') {
+      if (change?.type === 'insert') {
         await lastValueFrom(this.http.post('/api/Projects', { ...change.data, teamIds: [] }));
-      } else if (change.type === 'update') {
+      } else if (change?.type === 'update') {
         await lastValueFrom(this.http.put(`/api/Projects/${change.key}`, change.data));
-      } else if (change.type === 'remove') {
+      } else if (change?.type === 'remove') {
         await lastValueFrom(this.http.delete(`/api/Projects/${change.key}`));
       }
-      e.component.cancelEditData();
+      this.editingProjectId.set(null);
+      this.editingProjectTeams.set([]);
+      setTimeout(() => e.component.cancelEditData());
       await this.loadProjects();
     } catch (err: any) {
       this.toastService.error(err.message ?? 'Operation failed');
     }
   }
 
-  async onTeamRowExpanded(e: any) {
-    const teamId = e.key;
+  async addProjectTeam() {
+    const projectId = this.editingProjectId();
+    if (!projectId || !this.newProjectTeamId) return;
     try {
-      const team = await lastValueFrom(this.http.get<any>(`/api/Teams/${teamId}`));
-      this.teamDetails.update(d => ({ ...d, [teamId]: team }));
-      if (!this.addMemberState()[teamId]) {
-        this.addMemberState.update(s => ({ ...s, [teamId]: { userId: null, isLeader: false } }));
-      }
-    } catch {
-      this.toastService.error('Failed to load team members');
+      await lastValueFrom(this.http.post(`/api/Projects/${projectId}/teams/${this.newProjectTeamId}`, {}));
+      const project = await lastValueFrom(this.http.get<any>(`/api/Projects/${projectId}`));
+      this.editingProjectTeams.set(this.mapProjectTeams(project.teamIds ?? []));
+      this.newProjectTeamId = null;
+    } catch (err: any) {
+      this.toastService.error(err.message ?? 'Failed to assign team');
     }
   }
 
-  getMembersForTeam(teamId: string): any[] {
-    const detail = this.teamDetails()[teamId];
-    if (!detail) return [];
-    return (detail.members ?? []).map((m: any) => ({
-      ...m,
+  async removeProjectTeam(teamId: string) {
+    const projectId = this.editingProjectId();
+    if (!projectId) return;
+    try {
+      await lastValueFrom(this.http.delete(`/api/Projects/${projectId}/teams/${teamId}`));
+      const project = await lastValueFrom(this.http.get<any>(`/api/Projects/${projectId}`));
+      this.editingProjectTeams.set(this.mapProjectTeams(project.teamIds ?? []));
+    } catch (err: any) {
+      this.toastService.error(err.message ?? 'Failed to remove team');
+    }
+  }
+
+  private mapProjectTeams(teamIds: string[]): any[] {
+    return teamIds.map(teamId => ({
       teamId,
-      name: this.getUserName(m.userId),
+      name: this.teams().find(t => t.id === teamId)?.name ?? teamId,
     }));
-  }
-
-  getUserName(userId: string): string {
-    return this.users().find(u => u.id === userId)?.name ?? userId;
-  }
-
-  getAddMemberState(teamId: string) {
-    return this.addMemberState()[teamId] ?? { userId: null, isLeader: false };
-  }
-
-  setAddMemberUserId(teamId: string, userId: string | null) {
-    this.addMemberState.update(s => ({ ...s, [teamId]: { ...this.getAddMemberState(teamId), userId } }));
-  }
-
-  setAddMemberIsLeader(teamId: string, isLeader: boolean) {
-    this.addMemberState.update(s => ({ ...s, [teamId]: { ...this.getAddMemberState(teamId), isLeader } }));
-  }
-
-  async addMember(teamId: string) {
-    const state = this.getAddMemberState(teamId);
-    if (!state.userId) return;
-    try {
-      await lastValueFrom(this.http.post(`/api/Teams/${teamId}/members`, {
-        userId: state.userId,
-        isLeader: state.isLeader,
-      }));
-      const team = await lastValueFrom(this.http.get<any>(`/api/Teams/${teamId}`));
-      this.teamDetails.update(d => ({ ...d, [teamId]: team }));
-      this.addMemberState.update(s => ({ ...s, [teamId]: { userId: null, isLeader: false } }));
-    } catch (err: any) {
-      this.toastService.error(err.message ?? 'Failed to add member');
-    }
-  }
-
-  async removeMember(teamId: string, userId: string) {
-    try {
-      await lastValueFrom(this.http.delete(`/api/Teams/${teamId}/members/${userId}`));
-      const team = await lastValueFrom(this.http.get<any>(`/api/Teams/${teamId}`));
-      this.teamDetails.update(d => ({ ...d, [teamId]: team }));
-    } catch (err: any) {
-      this.toastService.error(err.message ?? 'Failed to remove member');
-    }
   }
 }

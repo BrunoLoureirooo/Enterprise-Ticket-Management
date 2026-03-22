@@ -20,11 +20,13 @@ namespace ticket.Application.Services
             var memberships = await repository.TeamMembership.GetByUserAsync(userId);
             var ledTeamIds  = memberships.Where(m => m.IsLeader).Select(m => m.TeamId).ToList();
 
-            // Team leader → all tickets in their team(s)
+            // Team leader → all tickets in their team(s) + tickets assigned to them
             if (ledTeamIds.Count > 0)
             {
-                var tickets = await repository.Ticket.GetByTeamsAsync(ledTeamIds);
-                return mapper.Map<IEnumerable<TicketDto>>(tickets);
+                var teamTickets    = await repository.Ticket.GetByTeamsAsync(ledTeamIds);
+                var assignedToMe  = await repository.Ticket.GetByUserAsync(userId);
+                var combined      = teamTickets.UnionBy(assignedToMe, t => t.Id);
+                return mapper.Map<IEnumerable<TicketDto>>(combined);
             }
 
             // Regular member → only tickets assigned to them

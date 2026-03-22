@@ -58,7 +58,7 @@
             <dxo-lookup [dataSource]="projects()" valueExpr="id" displayExpr="name" />
         </dxi-column>
         <dxi-column dataField="assignedToId" caption="Assigned To" [width]="160">
-            <dxo-lookup [dataSource]="users()" valueExpr="id" displayExpr="name" />
+            <dxo-lookup [dataSource]="users()" valueExpr="id" displayExpr="nome" />
         </dxi-column>
         <dxi-column dataField="createdAt" caption="Created" dataType="datetime" [width]="170" />
         <dxi-column dataField="description" caption="Description" [visible]="false" />
@@ -67,7 +67,7 @@
         <!-- Cascading form templates -->
         <div *dxTemplate="let data of 'teamSelector'">
             <dx-select-box
-                [value]="data.component.option('formData')?.teamId"
+                [value]="selectedTeamId()"
                 [dataSource]="teams()"
                 displayExpr="name"
                 valueExpr="id"
@@ -80,7 +80,7 @@
 
         <div *dxTemplate="let data of 'projectSelector'">
             <dx-select-box
-                [value]="data.component.option('formData')?.projectId"
+                [value]="selectedProjectId()"
                 [dataSource]="filteredProjects"
                 displayExpr="name"
                 valueExpr="id"
@@ -93,9 +93,9 @@
 
         <div *dxTemplate="let data of 'assigneeSelector'">
             <dx-select-box
-                [value]="data.component.option('formData')?.assignedToId"
+                [value]="selectedAssigneeId()"
                 [dataSource]="assigneeOptions"
-                displayExpr="name"
+                displayExpr="nome"
                 valueExpr="id"
                 placeholder="Select assignee..."
                 [showClearButton]="true"

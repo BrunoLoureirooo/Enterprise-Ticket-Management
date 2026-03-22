@@ -81,6 +81,68 @@ namespace Repository.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("SyncedUsers");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = new Guid("e3a5e7de-975c-4d0f-ad17-cd563e62789a"),
+                            Email = "alice.parker@company.com",
+                            Name = "Alice Parker"
+                        },
+                        new
+                        {
+                            UserId = new Guid("251e0a52-d589-4845-ada8-daeb08be76ea"),
+                            Email = "anna.collins@company.com",
+                            Name = "Anna Collins"
+                        },
+                        new
+                        {
+                            UserId = new Guid("024e414c-d9d9-477a-bcb5-c6777bc7d3f9"),
+                            Email = "carol.green@company.com",
+                            Name = "Carol Green"
+                        },
+                        new
+                        {
+                            UserId = new Guid("0eae7ece-6671-4f83-9caa-fc2d8eadd9ae"),
+                            Email = "philip.davis@company.com",
+                            Name = "Philip Davis"
+                        },
+                        new
+                        {
+                            UserId = new Guid("db21f4f6-0eb4-4905-a604-ae5ab05696a6"),
+                            Email = "florence.reed@company.com",
+                            Name = "Florence Reed"
+                        },
+                        new
+                        {
+                            UserId = new Guid("f1cc0ba3-1050-43f7-86bd-98d4b7f7e216"),
+                            Email = "john.foster@company.com",
+                            Name = "John Foster"
+                        },
+                        new
+                        {
+                            UserId = new Guid("804eef0f-2ec6-4b19-8b54-3373388f122b"),
+                            Email = "mary.allen@company.com",
+                            Name = "Mary Allen"
+                        },
+                        new
+                        {
+                            UserId = new Guid("faf84edb-dd0b-4de9-90f9-3671335d01c7"),
+                            Email = "sandra.quinn@company.com",
+                            Name = "Sandra Quinn"
+                        },
+                        new
+                        {
+                            UserId = new Guid("4b93b0ab-aed4-4eb1-a40b-900229359841"),
+                            Email = "louis.newton@company.com",
+                            Name = "Louis Newton"
+                        },
+                        new
+                        {
+                            UserId = new Guid("fb874eba-9c48-4340-a690-bebb2195d379"),
+                            Email = "admin@admin.com",
+                            Name = "Admin"
+                        });
                 });
 
             modelBuilder.Entity("teams.Entities.Models.Team", b =>
@@ -124,6 +186,8 @@ namespace Repository.Migrations
 
                     b.HasKey("TeamId", "UserId");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("TeamMembers");
                 });
 
@@ -154,7 +218,15 @@ namespace Repository.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("teams.Entities.Models.SyncedUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Team");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("teams.Entities.Models.Project", b =>
