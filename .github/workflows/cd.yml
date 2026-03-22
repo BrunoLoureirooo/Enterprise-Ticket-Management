@@ -7,6 +7,8 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_PREFIX: ghcr.io/brunoloureirooo/ticket-mgmt
+  RESOURCE_GROUP: rg-ticket-mgmt
+  ENVIRONMENT: cae-ticket-mgmt
 
 jobs:
   build-and-deploy:
@@ -47,6 +49,13 @@ jobs:
           push: true
           tags: ${{ env.IMAGE_PREFIX }}-ticket:latest
 
+      - name: Build and push teams image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend/teams-api
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}-teams:latest
+
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
         with:
@@ -64,23 +73,41 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
-            # Images are public on ghcr.io — no registry credentials needed
-            az containerapp update \
-              --name ca-identity \
-              --resource-group rg-ticket-mgmt \
-              --image ${{ env.IMAGE_PREFIX }}-identity:latest
+            set -e
 
-            az containerapp update \
-              --name ca-gateway \
-              --resource-group rg-ticket-mgmt \
-              --image ${{ env.IMAGE_PREFIX }}-gateway:latest
+            # Creates the container app if it doesn't exist, then updates the image.
+            # Secrets and env vars are managed by Terraform — this only ensures the app
+            # exists so that `update` doesn't fail on first deploy.
+            deploy() {
+              local name=$1
+              local image=$2
+              local ingress=$3  # external | internal
+              local port=$4
 
-            az containerapp update \
-              --name ca-ticket \
-              --resource-group rg-ticket-mgmt \
-              --image ${{ env.IMAGE_PREFIX }}-ticket:latest
+              if ! az containerapp show \
+                    --name "$name" \
+                    --resource-group ${{ env.RESOURCE_GROUP }} \
+                    --output none 2>/dev/null; then
+                echo "Creating $name (first deploy)..."
+                az containerapp create \
+                  --name "$name" \
+                  --resource-group ${{ env.RESOURCE_GROUP }} \
+                  --environment ${{ env.ENVIRONMENT }} \
+                  --image "$image" \
+                  --cpu 0.25 --memory 0.5Gi \
+                  --ingress "$ingress" \
+                  --target-port "$port" \
+                  --min-replicas 0 --max-replicas 1
+              else
+                az containerapp update \
+                  --name "$name" \
+                  --resource-group ${{ env.RESOURCE_GROUP }} \
+                  --image "$image"
+              fi
+            }
 
-            az containerapp update \
-              --name ca-frontend \
-              --resource-group rg-ticket-mgmt \
-              --image ${{ env.IMAGE_PREFIX }}-frontend:latest
+            deploy ca-identity  ${{ env.IMAGE_PREFIX }}-identity:latest  internal 8080
+            deploy ca-gateway   ${{ env.IMAGE_PREFIX }}-gateway:latest   external 8080
+            deploy ca-ticket    ${{ env.IMAGE_PREFIX }}-ticket:latest    internal 8080
+            deploy ca-teams     ${{ env.IMAGE_PREFIX }}-teams:latest     internal 8080
+            deploy ca-frontend  ${{ env.IMAGE_PREFIX }}-frontend:latest  external 80
