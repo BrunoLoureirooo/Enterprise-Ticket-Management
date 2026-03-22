@@ -5,6 +5,8 @@ using backend.Entities.Models;
 using backend.Application;
 using backend.Application.Services;
 using backend.Application.Services.Contracts;
+using backend.Application.Messaging;
+using backend.Application.ClaimEnrichers;
 using backend.API.ActionFilters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
@@ -53,11 +55,19 @@ builder.Services.AddCors(options =>
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddIdentityCore<ApplicationUser>(o =>
 {
+#if DEBUG
+    o.Password.RequireDigit = false;
+    o.Password.RequireLowercase = false;
+    o.Password.RequireUppercase = false;
+    o.Password.RequireNonAlphanumeric = false;
+    o.Password.RequiredLength = 1;
+#else
     o.Password.RequireDigit = true;
     o.Password.RequireLowercase = false;
     o.Password.RequireUppercase = false;
     o.Password.RequireNonAlphanumeric = false;
     o.Password.RequiredLength = 10;
+#endif
     o.User.RequireUniqueEmail = true;
 })
 .AddRoles<ApplicationRole>()
@@ -87,7 +97,11 @@ builder.Services.AddScoped<ValidationFilterAttribute>();
 // Add Claim Enrichers — one per external service that contributes contextual claims.
 // Swap NullClaimEnricher for a real implementation (e.g. HrServiceClaimEnricher)
 // when external profile services exist. Register multiple as needed.
-builder.Services.AddScoped<IClaimEnricher, NullClaimEnricher>();
+builder.Services.AddScoped<IClaimEnricher, TeamLeaderClaimEnricher>();
+
+// Add RabbitMQ publisher
+builder.Services.AddSingleton<RabbitMqPublisher>();
+builder.Services.AddHostedService<TeamMembershipConsumer>();
 
 // Add Redis
 var redisConn = builder.Configuration["Redis:ConnectionString"] ?? "localhost:6379";
@@ -113,12 +127,7 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
 
 
 app.UseCors("CorsPolicy");

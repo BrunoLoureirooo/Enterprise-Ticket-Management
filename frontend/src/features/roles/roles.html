@@ -1,0 +1,75 @@
+<div class="container">
+    <div class="my-2">
+        <dx-toolbar>
+            <dxi-toolbar-item location="before">
+                <div *dxTemplate>
+                    <b>Roles</b>
+                </div>
+            </dxi-toolbar-item>
+        </dx-toolbar>
+    </div>
+
+    <dx-data-grid
+        [dataSource]="roles()"
+        [showBorders]="true"
+        [rowAlternationEnabled]="true"
+        [columnAutoWidth]="true"
+        [loadPanel]="{ enabled: loading(), text: 'Loading roles...' }"
+        (onEditingStart)="onEditingStart($event)"
+        (onSaving)="onSaving($event)">
+
+        <dxo-editing mode="popup" [allowUpdating]="canUpdate" [useIcons]="true">
+            <dxo-popup title="Edit Permissions" [showTitle]="true" [width]="580" height="auto">
+            </dxo-popup>
+            <dxo-form [colCount]="1">
+                <dxi-item dataField="name" />
+                <dxi-item dataField="permissions" [label]="{ text: ' ' }" />
+            </dxo-form>
+        </dxo-editing>
+
+        <dxo-filter-row [visible]="true" />
+        <dxo-header-filter [visible]="true" />
+        <dxo-paging [pageSize]="10" />
+        <dxo-pager [visible]="true" [showPageSizeSelector]="true" [allowedPageSizes]="[10, 25, 50]" [showInfo]="true" />
+
+        <dxi-column type="buttons" [width]="60">
+            <dxi-button name="edit" />
+        </dxi-column>
+
+        <dxi-column dataField="name" caption="Name" [allowEditing]="false" />
+
+        <dxi-column dataField="permissions" [visible]="false" editCellTemplate="permEditTemplate" />
+
+        <div *dxTemplate="let cellInfo of 'permEditTemplate'">
+            <dx-tab-panel
+                [dataSource]="permissionGroups()"
+                [showNavButtons]="true"
+                itemTitleTemplate="tabTitle"
+                itemTemplate="tabContent">
+
+                <div *dxTemplate="let group of 'tabTitle'">{{ group.group }}</div>
+
+                <div *dxTemplate="let group of 'tabContent'" style="padding: 8px 0;">
+                    <dx-data-grid
+                        [dataSource]="getTabGridData(group.permissions)"
+                        [showBorders]="false"
+                        [showColumnLines]="false"
+                        [rowAlternationEnabled]="false"
+                        [columnAutoWidth]="true"
+                        (onRowUpdating)="onPermRowUpdating($event)">
+
+                        <dxo-editing mode="cell" [allowUpdating]="true" />
+                        <dxo-paging [enabled]="false" />
+                        <dxo-scrolling mode="virtual" />
+
+                        <dxi-column dataField="action" caption="Permission" [allowEditing]="false" />
+                        <dxi-column dataField="enabled" caption="Enabled" dataType="boolean" [width]="90" />
+
+                    </dx-data-grid>
+                </div>
+
+            </dx-tab-panel>
+        </div>
+
+    </dx-data-grid>
+</div>

@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from '../core/guards/auth.guard';
+import { permissionGuard } from '../core/guards/permission.guard';
 
 export const routes: Routes = [
     {
@@ -22,6 +23,8 @@ export const routes: Routes = [
             },
             {
                 path: 'tickets',
+                canActivate: [permissionGuard],
+                data: { permission: 'ticket.read' },
                 loadComponent: () => import('../features/tickets/tickets').then(m => m.Tickets)
             },
             {
@@ -30,12 +33,22 @@ export const routes: Routes = [
             },
             {
                 path: 'users',
+                canActivate: [permissionGuard],
+                data: { permission: 'user.read' },
                 loadComponent: () => import('../features/users/users').then(m => m.Users)
             },
             {
-                path: 'settings',
-                loadComponent: () => import('../features/settings/settings').then(m => m.Settings)
-            }
+                path: 'roles',
+                canActivate: [permissionGuard],
+                data: { permission: 'role.read' },
+                loadComponent: () => import('../features/roles/roles').then(m => m.Roles)
+            },
+            {
+                path: 'teams',
+                canActivate: [permissionGuard],
+                data: { permission: 'teams.read' },
+                loadComponent: () => import('../features/teams/teams').then(m => m.Teams)
+            },
         ]
     },
     {

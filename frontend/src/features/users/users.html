@@ -18,7 +18,7 @@
         <dxo-paging [pageSize]="10" />
         <dxo-pager [visible]="true" [showPageSizeSelector]="true" [allowedPageSizes]="[10, 25, 50]" [showInfo]="true" />
 
-        <dxo-editing mode="popup" [allowUpdating]="true" [allowDeleting]="true" [useIcons]="true" />
+        <dxo-editing mode="popup" [allowUpdating]="canUpdate" [allowDeleting]="canDelete" [useIcons]="true" />
 
         <dxi-column type="buttons" [width]="80">
             <dxi-button name="edit" />

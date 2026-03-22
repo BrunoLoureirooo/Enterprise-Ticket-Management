@@ -51,3 +51,35 @@ variable "sentry_dsn_gateway" {
   sensitive   = true
   default     = ""
 }
+
+variable "ticket_db_connection_string" {
+  description = "Neon PostgreSQL connection string for ticket service"
+  type        = string
+  sensitive   = true
+}
+
+variable "sentry_dsn_ticket" {
+  description = "Sentry DSN for ticket service"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "teams_db_connection_string" {
+  description = "Neon PostgreSQL connection string for teams service"
+  type        = string
+  sensitive   = true
+}
+
+variable "rabbitmq_connection_string" {
+  description = "AMQP connection string (e.g. CloudAMQP URL: amqps://user:pass@host/vhost)"
+  type        = string
+  sensitive   = true
+}
+
+variable "sentry_dsn_teams" {
+  description = "Sentry DSN for teams service"
+  type        = string
+  sensitive   = true
+  default     = ""
+}

@@ -2,6 +2,7 @@ using AutoMapper;
 using backend.Entities;
 using backend.Entities.Models;
 using backend.Application.Services.Contracts;
+using backend.Application.Messaging;
 using backend.Entities.DataTransferObjects;
 using backend.Entities.DataTransferObjects.Users;
 using Microsoft.AspNetCore.Identity;
@@ -26,10 +27,11 @@ namespace backend.Application.Services
         private readonly JwtConfiguration _jwtConfiguration;
         private readonly IClaimEnricher[] _claimEnrichers;
         private readonly ITokenRevocationService _revocation;
+        private readonly RabbitMqPublisher _publisher;
 
 
         //Contructors
-        public AuthenticationService(ILoggerManager logger, IMapper mapper, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IOptions<JwtConfiguration> configuration, IEnumerable<IClaimEnricher> claimEnrichers, ITokenRevocationService revocation)
+        public AuthenticationService(ILoggerManager logger, IMapper mapper, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IOptions<JwtConfiguration> configuration, IEnumerable<IClaimEnricher> claimEnrichers, ITokenRevocationService revocation, RabbitMqPublisher publisher)
         {
             _logger = logger;
             _mapper = mapper;
@@ -39,6 +41,7 @@ namespace backend.Application.Services
             _jwtConfiguration = _configuration.Value;
             _claimEnrichers = claimEnrichers.ToArray();
             _revocation = revocation;
+            _publisher = publisher;
         }
 
 
@@ -67,7 +70,16 @@ namespace backend.Application.Services
 
             var result = await _userManager.CreateAsync(user, userForRegistration?.Password ?? "NA");
             if (result.Succeeded)
+            {
                 await _userManager.AddToRolesAsync(user, userForRegistration?.Roles ?? []);
+                _publisher.PublishUser(new UserChangedEvent
+                {
+                    UserId = user.Id,
+                    Name   = user.Nome ?? string.Empty,
+                    Email  = user.Email ?? string.Empty,
+                    Action = "Created",
+                });
+            }
 
             return result;
         }

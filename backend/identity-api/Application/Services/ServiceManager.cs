@@ -1,6 +1,7 @@
 using AutoMapper;
 using backend.Entities;
 using backend.Entities.Models;
+using backend.Application.Messaging;
 using backend.Application.Services.Contracts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
@@ -22,10 +23,11 @@ namespace backend.Application.Services
             RoleManager<ApplicationRole> roleManager,
             IOptions<JwtConfiguration> configuration,
             IEnumerable<IClaimEnricher> claimEnrichers,
-            ITokenRevocationService revocation)
+            ITokenRevocationService revocation,
+            RabbitMqPublisher publisher)
         {
             _authenticationService = new Lazy<IAuthenticationService>(() =>
-                new AuthenticationService(logger, mapper, userManager, roleManager, configuration, claimEnrichers, revocation));
+                new AuthenticationService(logger, mapper, userManager, roleManager, configuration, claimEnrichers, revocation, publisher));
 
             _userService = new Lazy<IUserService>(() =>
                 new UserService(logger, mapper, userManager));

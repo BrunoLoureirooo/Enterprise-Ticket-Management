@@ -14,54 +14,53 @@ public class UserRoleConfiguration : IEntityTypeConfiguration<IdentityUserRole<G
             new IdentityUserRole<Guid>
             {
                 UserId = UserConfiguration.ADMIN,
-                RoleId = RoleConfiguration.ROLE_ADMINISTRADOR,                
+                RoleId = RoleConfiguration.ROLE_ADMINISTRADOR,
             },
             new IdentityUserRole<Guid>
             {
-                UserId = UserConfiguration.ANA_PINTO,
+                UserId = UserConfiguration.ALICE_PARKER,
                 RoleId = RoleConfiguration.ROLE_FUNCIONARIO
             },
             new IdentityUserRole<Guid>
             {
-                UserId = UserConfiguration.ANA_CASACO,
+                UserId = UserConfiguration.ANNA_COLLINS,
                 RoleId = RoleConfiguration.ROLE_FUNCIONARIO
             },
             new IdentityUserRole<Guid>
             {
-                UserId = UserConfiguration.CARLA_AZEVEDO,
+                UserId = UserConfiguration.CAROL_GREEN,
                 RoleId = RoleConfiguration.ROLE_FUNCIONARIO
             },
             new IdentityUserRole<Guid>
             {
-                UserId = UserConfiguration.FILIPE_DIAS,
+                UserId = UserConfiguration.PHILIP_DAVIS,
                 RoleId = RoleConfiguration.ROLE_FUNCIONARIO
             },
             new IdentityUserRole<Guid>
             {
-                UserId = UserConfiguration.FILOMENA_REBELO,
+                UserId = UserConfiguration.FLORENCE_REED,
                 RoleId = RoleConfiguration.ROLE_FUNCIONARIO
             },
             new IdentityUserRole<Guid>
             {
-                UserId = UserConfiguration.JOAO_FONSECA,
+                UserId = UserConfiguration.JOHN_FOSTER,
                 RoleId = RoleConfiguration.ROLE_FUNCIONARIO
             },
             new IdentityUserRole<Guid>
             {
-                UserId = UserConfiguration.MARIA_ALVES,
+                UserId = UserConfiguration.MARY_ALLEN,
                 RoleId = RoleConfiguration.ROLE_FUNCIONARIO
             },
             new IdentityUserRole<Guid>
             {
-                UserId = UserConfiguration.SANDRA_CONCEICAO,
+                UserId = UserConfiguration.SANDRA_QUINN,
                 RoleId = RoleConfiguration.ROLE_FUNCIONARIO
             },
             new IdentityUserRole<Guid>
             {
-                UserId = UserConfiguration.LUIS_NEVES,
+                UserId = UserConfiguration.LOUIS_NEWTON,
                 RoleId = RoleConfiguration.ROLE_FUNCIONARIO
             }
-
         );
     }
 }

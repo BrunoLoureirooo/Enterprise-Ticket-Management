@@ -1,0 +1,13 @@
+/home/vyrus-extreme/Projects/Enterprise-Ticket-Management/backend/ticket-api/Entities/bin/Debug/net8.0/Entities.deps.json
+/home/vyrus-extreme/Projects/Enterprise-Ticket-Management/backend/ticket-api/Entities/bin/Debug/net8.0/Entities.dll
+/home/vyrus-extreme/Projects/Enterprise-Ticket-Management/backend/ticket-api/Entities/bin/Debug/net8.0/Entities.pdb
+/home/vyrus-extreme/Projects/Enterprise-Ticket-Management/backend/ticket-api/Entities/obj/Debug/net8.0/Entities.csproj.AssemblyReference.cache
+/home/vyrus-extreme/Projects/Enterprise-Ticket-Management/backend/ticket-api/Entities/obj/Debug/net8.0/Entities.GeneratedMSBuildEditorConfig.editorconfig
+/home/vyrus-extreme/Projects/Enterprise-Ticket-Management/backend/ticket-api/Entities/obj/Debug/net8.0/Entities.AssemblyInfoInputs.cache
+/home/vyrus-extreme/Projects/Enterprise-Ticket-Management/backend/ticket-api/Entities/obj/Debug/net8.0/Entities.AssemblyInfo.cs
+/home/vyrus-extreme/Projects/Enterprise-Ticket-Management/backend/ticket-api/Entities/obj/Debug/net8.0/Entities.csproj.CoreCompileInputs.cache
+/home/vyrus-extreme/Projects/Enterprise-Ticket-Management/backend/ticket-api/Entities/obj/Debug/net8.0/Entities.sourcelink.json
+/home/vyrus-extreme/Projects/Enterprise-Ticket-Management/backend/ticket-api/Entities/obj/Debug/net8.0/Entities.dll
+/home/vyrus-extreme/Projects/Enterprise-Ticket-Management/backend/ticket-api/Entities/obj/Debug/net8.0/refint/Entities.dll
+/home/vyrus-extreme/Projects/Enterprise-Ticket-Management/backend/ticket-api/Entities/obj/Debug/net8.0/Entities.pdb
+/home/vyrus-extreme/Projects/Enterprise-Ticket-Management/backend/ticket-api/Entities/obj/Debug/net8.0/ref/Entities.dll

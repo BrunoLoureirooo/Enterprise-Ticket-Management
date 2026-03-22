@@ -1,1 +1,90 @@
-<p>my-tickets works!</p>
+<div class="container">
+    <div class="my-2">
+        <dx-toolbar>
+            <dxi-toolbar-item location="before">
+                <div *dxTemplate>
+                    <b>My Tickets</b>
+                </div>
+            </dxi-toolbar-item>
+        </dx-toolbar>
+    </div>
+
+    <dx-data-grid
+        [dataSource]="tickets()"
+        keyExpr="id"
+        [showBorders]="true"
+        [rowAlternationEnabled]="true"
+        [columnAutoWidth]="true"
+        [allowColumnResizing]="true"
+        [loadPanel]="{ enabled: loading(), text: 'Loading tickets...' }"
+        (onInitNewRow)="onInitNewRow()"
+        (onEditingStart)="onEditingStart($event)"
+        (onSaving)="onSaving($event)">
+
+        <dxo-editing mode="popup" [allowAdding]="canCreate" [allowUpdating]="canUpdate" [useIcons]="true">
+            <dxo-popup title="Ticket" [showTitle]="true" [width]="600" height="auto"></dxo-popup>
+            <dxo-form [colCount]="1">
+                <dxi-item dataField="title" />
+                <dxi-item dataField="description" editorType="dxTextArea" [editorOptions]="{ height: 100 }" />
+                <dxi-item dataField="priority" />
+                <dxi-item dataField="teamId" template="teamSelector" [label]="{ text: 'Team' }" />
+                <dxi-item dataField="projectId" template="projectSelector" [label]="{ text: 'Project' }" />
+            </dxo-form>
+        </dxo-editing>
+
+        <dxo-filter-row [visible]="true" />
+        <dxo-header-filter [visible]="true" />
+        <dxo-paging [pageSize]="10" />
+        <dxo-pager [visible]="true" [showPageSizeSelector]="true" [allowedPageSizes]="[10, 25, 50]" [showInfo]="true" />
+
+        <dxi-column type="buttons" [width]="90">
+            <dxi-button name="edit" />
+            <dxi-button icon="isblank" hint="Close Ticket" [onClick]="onCloseClick.bind(this)" [visible]="isClosable" />
+        </dxi-column>
+
+        <dxi-column dataField="title" caption="Title" />
+        <dxi-column dataField="status" caption="Status" [width]="120">
+            <dxo-lookup [dataSource]="statusOptions" />
+        </dxi-column>
+        <dxi-column dataField="priority" caption="Priority" [width]="110">
+            <dxo-lookup [dataSource]="priorityOptions" />
+        </dxi-column>
+        <dxi-column dataField="teamId" caption="Team" [width]="160">
+            <dxo-lookup [dataSource]="teams()" valueExpr="id" displayExpr="name" />
+        </dxi-column>
+        <dxi-column dataField="projectId" caption="Project" [width]="160">
+            <dxo-lookup [dataSource]="projects()" valueExpr="id" displayExpr="name" />
+        </dxi-column>
+        <dxi-column dataField="createdAt" caption="Created" dataType="datetime" [width]="170" />
+        <dxi-column dataField="description" caption="Description" [visible]="false" />
+        <dxi-column dataField="closedAt" caption="Closed At" dataType="datetime" [width]="170" [visible]="false" />
+
+        <!-- Cascading form templates -->
+        <div *dxTemplate="let data of 'teamSelector'">
+            <dx-select-box
+                [value]="data.component.option('formData')?.teamId"
+                [dataSource]="teams()"
+                displayExpr="name"
+                valueExpr="id"
+                placeholder="Select team..."
+                [showClearButton]="true"
+                [searchEnabled]="true"
+                (onValueChanged)="onTeamChange($event, data.component)">
+            </dx-select-box>
+        </div>
+
+        <div *dxTemplate="let data of 'projectSelector'">
+            <dx-select-box
+                [value]="data.component.option('formData')?.projectId"
+                [dataSource]="filteredProjects"
+                displayExpr="name"
+                valueExpr="id"
+                placeholder="Select project..."
+                [showClearButton]="true"
+                [searchEnabled]="true"
+                (onValueChanged)="onProjectChange($event, data.component)">
+            </dx-select-box>
+        </div>
+
+    </dx-data-grid>
+</div>

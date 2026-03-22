@@ -67,6 +67,7 @@ services:
       - JwtSettings__ExpiryMinutes=60
       - Sentry__Dsn=${SENTRY_DSN_IDENTITY}
       - Redis__ConnectionString=ticket-redis:6379
+      - RabbitMQ__ConnectionString=amqp://guest:guest@ticket-rabbitmq/
     volumes:
       - ./https:/https:ro
     depends_on:
@@ -74,11 +75,82 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
       - ticket-network
     restart: unless-stopped
     env_file:
       - .env
+
+  # ASP.NET Core Backend Ticket API (.NET 8)
+  ticket:
+    build:
+      context: ./backend/ticket-api
+      dockerfile: Dockerfile
+    container_name: ticket-backend-ticket
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTPS_PORTS=8443
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=DevCertPassword123!
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=ticketdb;Username=postgres;Password=${DB_PASSWORD}
+      - RabbitMQ__ConnectionString=amqp://guest:guest@ticket-rabbitmq/
+      - Sentry__Dsn=${SENTRY_DSN_TICKET}
+    volumes:
+      - ./https:/https:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - ticket-network
+    restart: unless-stopped
+    env_file:
+      - .env
+
+  # ASP.NET Core Backend Teams API (.NET 8)
+  teams:
+    build:
+      context: ./backend/teams-api
+      dockerfile: Dockerfile
+    container_name: ticket-backend-teams
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTPS_PORTS=8443
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=DevCertPassword123!
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=teamsdb;Username=postgres;Password=${DB_PASSWORD}
+      - RabbitMQ__ConnectionString=amqp://guest:guest@ticket-rabbitmq/
+      - Sentry__Dsn=${SENTRY_DSN_TEAMS}
+    volumes:
+      - ./https:/https:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - ticket-network
+    restart: unless-stopped
+    env_file:
+      - .env
+
+  # RabbitMQ — async messaging between services
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: ticket-rabbitmq
+    ports:
+      - "15672:15672"
+    networks:
+      - ticket-network
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
   # Redis — token revocation blocklist, permission hash cache, rate limiting
   redis:
@@ -99,11 +171,10 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: ticket-frontend
+    environment:
+      - GATEWAY_HOST=gateway:8080
     ports:
-      - "4200:443"
-      - "4201:80"
-    volumes:
-      - ./frontend/ssl:/etc/nginx/ssl:ro
+      - "4200:80"
     depends_on:
       - backend
     networks:

@@ -36,16 +36,20 @@ export class Layout {
 
   constructor() {
     const isAdmin = this.currentUser?.role === 'Admin';
+    const isTeamLeader = this.currentUser?.isTeamLeader ?? false;
+    const permissions = this.currentUser?.permissions ?? [];
     this.menuItems = [
       { id: 1, text: 'Dashboard', icon: 'bi bi-house-door', path: '', permission: null },
-      { id: 2, text: 'Tickets', icon: 'bi bi-ticket-perforated', path: '/tickets', permission: null },
+      { id: 2, text: 'Tickets', icon: 'bi bi-ticket-perforated', path: '/tickets', permission: 'ticket.read' },
       { id: 3, text: 'My Tickets', icon: 'bi bi-clipboard-check', path: '/my-tickets', permission: null },
-      { id: 4, text: 'Users', icon: 'bi bi-people', path: '/users', permission: 'user:read' },
-      { id: 5, text: 'Settings', icon: 'bi bi-gear', path: '/settings', permission: null },
+      { id: 4, text: 'Users', icon: 'bi bi-people', path: '/users', permission: 'user.read' },
+      { id: 5, text: 'Roles', icon: 'bi bi-shield-lock', path: '/roles', permission: 'role.read' },
+      { id: 6, text: 'Teams', icon: 'bi bi-diagram-3', path: '/teams', permission: 'teams.read' },
     ].filter(item =>
       item.permission === null ||
       isAdmin ||
-      (this.currentUser?.permissions ?? []).includes(item.permission!)
+      isTeamLeader ||
+      permissions.includes(item.permission!)
     );
   }
 

@@ -97,7 +97,7 @@ namespace gateway_api.API.Middleware
 
             if (isAdmin)
             {
-                ForwardRequest(context, userId, dept, principal);
+                ForwardRequest(context, userId, dept, principal, isAdmin: true);
                 await _next(context);
                 return;
             }
@@ -170,18 +170,21 @@ namespace gateway_api.API.Middleware
 
             return method.ToUpper() switch
             {
-                "GET"            => $"{resource}:read",
-                "POST"           => $"{resource}:create",
-                "PUT" or "PATCH" => $"{resource}:update",
-                "DELETE"         => $"{resource}:delete",
+                "GET"            => $"{resource}.read",
+                "POST"           => $"{resource}.create",
+                "PUT" or "PATCH" => $"{resource}.update",
+                "DELETE"         => $"{resource}.delete",
                 _                => null
             };
         }
 
-        private static void ForwardRequest(HttpContext context, string userId, string dept, ClaimsPrincipal principal)
+        private static void ForwardRequest(HttpContext context, string userId, string dept, ClaimsPrincipal principal, bool isAdmin = false)
         {
             context.Request.Headers.Remove("Authorization");
             context.Request.Headers["X-User-Id"] = userId;
+
+            if (isAdmin)
+                context.Request.Headers["X-User-Is-Admin"] = "true";
 
             if (!string.IsNullOrEmpty(dept))
                 context.Request.Headers["X-User-Dept"] = dept;

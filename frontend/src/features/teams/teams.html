@@ -1,0 +1,141 @@
+<div class="container">
+    <div class="my-2">
+        <dx-toolbar>
+            <dxi-toolbar-item location="before">
+                <div *dxTemplate><b>Teams</b></div>
+            </dxi-toolbar-item>
+        </dx-toolbar>
+    </div>
+
+    <!-- Tab buttons -->
+    <div class="flex gap-1 border-b border-gray-200 mb-4">
+        <button
+            class="px-4 py-2 text-sm font-medium border-b-2 transition-colors"
+            [class.border-blue-600]="activeTab() === 'teams'"
+            [class.text-blue-600]="activeTab() === 'teams'"
+            [class.border-transparent]="activeTab() !== 'teams'"
+            [class.text-gray-500]="activeTab() !== 'teams'"
+            (click)="activeTab.set('teams')">Teams</button>
+        <button
+            class="px-4 py-2 text-sm font-medium border-b-2 transition-colors"
+            [class.border-blue-600]="activeTab() === 'projects'"
+            [class.text-blue-600]="activeTab() === 'projects'"
+            [class.border-transparent]="activeTab() !== 'projects'"
+            [class.text-gray-500]="activeTab() !== 'projects'"
+            (click)="activeTab.set('projects')">Projects</button>
+    </div>
+
+    <!-- Teams section -->
+    <div [hidden]="activeTab() !== 'teams'">
+        <dx-data-grid
+            [dataSource]="teams()"
+            keyExpr="id"
+            [showBorders]="true"
+            [rowAlternationEnabled]="true"
+            [columnAutoWidth]="true"
+            [loadPanel]="{ enabled: loading(), text: 'Loading teams...' }"
+            (onRowExpanded)="onTeamRowExpanded($event)"
+            (onSaving)="onTeamsSaving($event)">
+
+            <dxo-editing mode="popup" [allowAdding]="canWrite" [allowUpdating]="canWrite" [allowDeleting]="canDelete" [useIcons]="true">
+                <dxo-popup title="Team" [showTitle]="true" [width]="500" height="auto"></dxo-popup>
+                <dxo-form [colCount]="1">
+                    <dxi-item dataField="name" />
+                    <dxi-item dataField="description" editorType="dxTextArea" [editorOptions]="{ height: 80 }" />
+                </dxo-form>
+            </dxo-editing>
+
+            <dxo-master-detail [enabled]="true" template="memberDetail" />
+            <dxo-filter-row [visible]="true" />
+            <dxo-paging [pageSize]="10" />
+            <dxo-pager [visible]="true" [showPageSizeSelector]="true" [allowedPageSizes]="[10, 25]" [showInfo]="true" />
+
+            <dxi-column type="buttons" [width]="80">
+                <dxi-button name="edit" />
+                <dxi-button name="delete" />
+            </dxi-column>
+            <dxi-column dataField="name" caption="Name" />
+            <dxi-column dataField="description" caption="Description" />
+
+            <!-- Master-detail: members -->
+            <div *dxTemplate="let detail of 'memberDetail'">
+                <div class="p-4">
+                    <p class="font-semibold text-sm mb-3">Members</p>
+
+                    <dx-data-grid
+                        [dataSource]="getMembersForTeam(detail.key)"
+                        [showBorders]="false"
+                        [showColumnLines]="false"
+                        [columnAutoWidth]="true"
+                        [rowAlternationEnabled]="false">
+                        <dxo-paging [enabled]="false" />
+                        <dxi-column type="buttons" [width]="50">
+                            <dxi-button icon="trash" hint="Remove" [onClick]="onRemoveMemberClick" />
+                        </dxi-column>
+                        <dxi-column dataField="name" caption="Name" />
+                        <dxi-column dataField="isLeader" caption="Leader" dataType="boolean" [width]="80" />
+                        <dxi-column dataField="joinedAt" caption="Joined" dataType="datetime" [width]="160" />
+                    </dx-data-grid>
+
+                    <!-- Add member form -->
+                    <div [hidden]="!canWrite" class="flex gap-3 items-center mt-3 border-t pt-3">
+                        <dx-select-box
+                            [dataSource]="users()"
+                            [value]="getAddMemberState(detail.key).userId"
+                            displayExpr="name"
+                            valueExpr="id"
+                            placeholder="Select user..."
+                            [searchEnabled]="true"
+                            [width]="280"
+                            (onValueChanged)="setAddMemberUserId(detail.key, $event.value)">
+                        </dx-select-box>
+                        <label class="flex items-center gap-2 text-sm text-gray-600">
+                            <dx-check-box
+                                [value]="getAddMemberState(detail.key).isLeader"
+                                (onValueChanged)="setAddMemberIsLeader(detail.key, $event.value)">
+                            </dx-check-box>
+                            Leader
+                        </label>
+                        <dx-button
+                            text="Add"
+                            type="default"
+                            stylingMode="contained"
+                            (onClick)="addMember(detail.key)">
+                        </dx-button>
+                    </div>
+                </div>
+            </div>
+        </dx-data-grid>
+    </div>
+
+    <!-- Projects section -->
+    <div [hidden]="activeTab() !== 'projects'">
+        <dx-data-grid
+            [dataSource]="projects()"
+            keyExpr="id"
+            [showBorders]="true"
+            [rowAlternationEnabled]="true"
+            [columnAutoWidth]="true"
+            (onSaving)="onProjectsSaving($event)">
+
+            <dxo-editing mode="popup" [allowAdding]="canWriteProject" [allowUpdating]="canWriteProject" [allowDeleting]="canDeleteProject" [useIcons]="true">
+                <dxo-popup title="Project" [showTitle]="true" [width]="500" height="auto"></dxo-popup>
+                <dxo-form [colCount]="1">
+                    <dxi-item dataField="name" />
+                    <dxi-item dataField="description" editorType="dxTextArea" [editorOptions]="{ height: 80 }" />
+                </dxo-form>
+            </dxo-editing>
+
+            <dxo-filter-row [visible]="true" />
+            <dxo-paging [pageSize]="10" />
+            <dxo-pager [visible]="true" [showPageSizeSelector]="true" [allowedPageSizes]="[10, 25]" [showInfo]="true" />
+
+            <dxi-column type="buttons" [width]="80">
+                <dxi-button name="edit" />
+                <dxi-button name="delete" />
+            </dxi-column>
+            <dxi-column dataField="name" caption="Name" />
+            <dxi-column dataField="description" caption="Description" />
+        </dx-data-grid>
+    </div>
+</div>

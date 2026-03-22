@@ -4,4 +4,5 @@ export interface UserInfo {
     role: string;
     avatarUrl: string;
     permissions: string[];
+    isTeamLeader: boolean;
 }

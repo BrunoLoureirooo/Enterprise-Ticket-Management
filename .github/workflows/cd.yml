@@ -40,6 +40,13 @@ jobs:
           push: true
           tags: ${{ env.IMAGE_PREFIX }}-gateway:latest
 
+      - name: Build and push ticket image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend/ticket-api
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}-ticket:latest
+
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
         with:
@@ -67,6 +74,11 @@ jobs:
               --name ca-gateway \
               --resource-group rg-ticket-mgmt \
               --image ${{ env.IMAGE_PREFIX }}-gateway:latest
+
+            az containerapp update \
+              --name ca-ticket \
+              --resource-group rg-ticket-mgmt \
+              --image ${{ env.IMAGE_PREFIX }}-ticket:latest
 
             az containerapp update \
               --name ca-frontend \

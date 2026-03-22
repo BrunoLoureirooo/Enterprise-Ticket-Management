@@ -82,6 +82,7 @@ export class AuthService {
                 role: payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ?? '',
                 avatarUrl: payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/uri'] ?? '',
                 permissions,
+                isTeamLeader: payload['is_team_leader'] === 'true',
             };
         } catch {
             return null;

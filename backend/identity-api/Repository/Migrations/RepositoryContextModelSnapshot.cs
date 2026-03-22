@@ -306,12 +306,12 @@ namespace Repository.Migrations
                             Id = new Guid("e3a5e7de-975c-4d0f-ad17-cd563e62789a"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "e0981140-1b7c-4f33-a556-8ce519876d66",
-                            Email = "apinto@pessoal.pt",
+                            Email = "alice.parker@company.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
-                            Nome = "Ana Alexandra Valença Pinto",
-                            NormalizedEmail = "APINTO@PESSOAL.PT",
-                            PasswordHash = "AQAAAAIAAYagAAAAENLLmW3rVmFlf8TaNCL5neMQ2dlb4Tqdmk8wmyech/l1LR0NrhCyYPNg5GVPixZE9Q==",
+                            Nome = "Alice Parker",
+                            NormalizedEmail = "ALICE.PARKER@COMPANY.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJdD2YwBxWAqhgtC41aF50812OmWiylRZEkT06LydtJ2ULJq8/T241cp3DMzN67OUw==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "82a360c3-37f9-42da-9dd2-e8af93b864fc",
                             TwoFactorEnabled = false
@@ -321,12 +321,12 @@ namespace Repository.Migrations
                             Id = new Guid("251e0a52-d589-4845-ada8-daeb08be76ea"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "1635a002-94d3-44ef-86bb-57748d6b5654",
-                            Email = "acasaco@pessoal.pt",
+                            Email = "anna.collins@company.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
-                            Nome = "Ana Cristina Leite Casaco",
-                            NormalizedEmail = "ACASACO@PESSOAL.PT",
-                            PasswordHash = "AQAAAAIAAYagAAAAEIDVzMG1GxuV1nz0VAKeh2s5+6SNWxHgrMQVsfltRGRgB30T5Svv8i96lxbNy6O5ew==",
+                            Nome = "Anna Collins",
+                            NormalizedEmail = "ANNA.COLLINS@COMPANY.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAELwxLIFnUF+fafXZuxptFDK+q2GHdJBug0HPqVqrvbBccBwMp2iEoFeMra8daeWKHw==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "9dce8fcf-555e-475b-a676-0336b4a2886e",
                             TwoFactorEnabled = false
@@ -336,12 +336,12 @@ namespace Repository.Migrations
                             Id = new Guid("024e414c-d9d9-477a-bcb5-c6777bc7d3f9"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "5701278b-d7ec-40ba-9cd6-708c44563c16",
-                            Email = "cazevedo@pessoal.pt",
+                            Email = "carol.green@company.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
-                            Nome = "Carla Alexandra Gomes Azevedo",
-                            NormalizedEmail = "CAZEVEDO@PESSOAL.PT",
-                            PasswordHash = "AQAAAAIAAYagAAAAEA/Jq/pyjdaYZPHHJpHbqp+i+5+OsgUefuEAQkvooVZb58I6rxZyxF8urU87vWNi3w==",
+                            Nome = "Carol Green",
+                            NormalizedEmail = "CAROL.GREEN@COMPANY.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAENd+H4/UO5UsuweYxqRKQZ1ckeGD4RDg/rjcMPlKrJnbBN3pxEBjNyaK+bsd0a+R6Q==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "75da7095-038e-4aca-970a-23122ef0e9c7",
                             TwoFactorEnabled = false
@@ -351,12 +351,12 @@ namespace Repository.Migrations
                             Id = new Guid("0eae7ece-6671-4f83-9caa-fc2d8eadd9ae"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "e5607436-cab6-4d49-bf0a-2a3f595fd1f7",
-                            Email = "fdias@pessoal.pt",
+                            Email = "philip.davis@company.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
-                            Nome = "Filipe Manuel Marques da Silva Dias",
-                            NormalizedEmail = "FDIAS@PESSOAL.PT",
-                            PasswordHash = "AQAAAAIAAYagAAAAEPndwjT6ExopmCYz9Aq9PrmtPPkq9lUQdddp76wbeRyhTVzEbGN+74hauKGZUWrVng==",
+                            Nome = "Philip Davis",
+                            NormalizedEmail = "PHILIP.DAVIS@COMPANY.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAEN56Uq28T10mZqm91rIwrmKyyOJIuukJ68mJpe7Vyjb/3MIGmqsKTkmSh3GMtuZyhg==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "bf601b92-1997-477c-a5b3-8958adc58474",
                             TwoFactorEnabled = false
@@ -366,12 +366,12 @@ namespace Repository.Migrations
                             Id = new Guid("db21f4f6-0eb4-4905-a604-ae5ab05696a6"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "85ce73c8-afd1-4679-bd8b-8cf37c891da0",
-                            Email = "frebelo@pessoal.pt",
+                            Email = "florence.reed@company.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
-                            Nome = "Filomena Maria Cruz Rebelo",
-                            NormalizedEmail = "FREBELO@PESSOAL.PT",
-                            PasswordHash = "AQAAAAIAAYagAAAAEBDhOkl+BmTH6/kLA+Lwjzg9lgE3khGaNJ13UhPR2EM5dQLs/k7mjif9+3KvB7i/wQ==",
+                            Nome = "Florence Reed",
+                            NormalizedEmail = "FLORENCE.REED@COMPANY.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAELV2IbSBWH3C4O+owCIprXm+vALEPw9LGF9eEczU0+9qeNnsi8Crlz234fWSqHV8UA==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "6db4e253-246d-4ed7-b833-e0d896805c07",
                             TwoFactorEnabled = false
@@ -381,12 +381,12 @@ namespace Repository.Migrations
                             Id = new Guid("f1cc0ba3-1050-43f7-86bd-98d4b7f7e216"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "5e9c546c-5c8b-446b-834d-89d3fb270ac9",
-                            Email = "jfonseca@pessoal.pt",
+                            Email = "john.foster@company.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
-                            Nome = "João Carlos Araújo Fonseca",
-                            NormalizedEmail = "JFONSECA@PESSOAL.PT",
-                            PasswordHash = "AQAAAAIAAYagAAAAENmFh/knB5U+tb/bOSLPIHkBqqkgHUv0msS8BrGdstihIWLsJom+6pAK5ijyjJ2yFA==",
+                            Nome = "John Foster",
+                            NormalizedEmail = "JOHN.FOSTER@COMPANY.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAEDkvI1cWfocFvS0fRrn+u6NjYaooLW/voue/Y3cweVjnxhN/gaD5nRjGMmHsXzgVmQ==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "c4225b9c-3e5c-4526-a267-b55fc1dbdde8",
                             TwoFactorEnabled = false
@@ -396,12 +396,12 @@ namespace Repository.Migrations
                             Id = new Guid("804eef0f-2ec6-4b19-8b54-3373388f122b"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "57635711-b231-4e09-866c-cb8970cab382",
-                            Email = "malves@pessoal.pt",
+                            Email = "mary.allen@company.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
-                            Nome = "Maria João Pereira Alves",
-                            NormalizedEmail = "MALVES@PESSOAL.PT",
-                            PasswordHash = "AQAAAAIAAYagAAAAEDOqoY/A9Id4uSg0FZ2Pn1IFcP59oG/uARhSavAgtFEgJ7ZcvoQkQVjjCvzc+BFQnQ==",
+                            Nome = "Mary Allen",
+                            NormalizedEmail = "MARY.ALLEN@COMPANY.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAEI4ajlUfhyTiVzYVze0pbK+M07kinowDfjH1ra8mjR0VEs7gDL+qDVmEJy9Zc/tKPQ==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "214c00b2-682f-4310-84ba-8cd7f466f20d",
                             TwoFactorEnabled = false
@@ -411,12 +411,12 @@ namespace Repository.Migrations
                             Id = new Guid("faf84edb-dd0b-4de9-90f9-3671335d01c7"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "e4e88c59-a13a-44b2-bedf-11fcb65c5d2b",
-                            Email = "sconceicao@pessoal.pt",
+                            Email = "sandra.quinn@company.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
-                            Nome = "Sandra Regina Queirós Azevedo Conceição",
-                            NormalizedEmail = "SCONCEICAO@PESSOAL.PT",
-                            PasswordHash = "AQAAAAIAAYagAAAAEBunlXGl4cP+eVgXp5N8WTrsPdSoFKudcKMZg47f2Ql3eJVJvOXqaYWopgeERwKVMw==",
+                            Nome = "Sandra Quinn",
+                            NormalizedEmail = "SANDRA.QUINN@COMPANY.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAECrHUlItrEi67j/Uh4l7Y+sTrTOL30RulfAEFt8w3GobdeM7i6m+12BapVBG197mHg==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "1d4e98cc-c78e-4abe-8164-aa41358c89b0",
                             TwoFactorEnabled = false
@@ -426,12 +426,12 @@ namespace Repository.Migrations
                             Id = new Guid("4b93b0ab-aed4-4eb1-a40b-900229359841"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "c02f62ed-c493-4c6b-9925-7ed27623346f",
-                            Email = "lneves@pessoal.pt",
+                            Email = "louis.newton@company.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
-                            Nome = "Luís Augusto Pinto Teixeira Neves",
-                            NormalizedEmail = "LNEVES@PESSOAL.PT",
-                            PasswordHash = "AQAAAAIAAYagAAAAEG9Qpe1DBFgyk9AfdJGGl6tzKtSDzBGv47Q6lSlf4vzR06PNT7XDSBirnaOeXgpq8w==",
+                            Nome = "Louis Newton",
+                            NormalizedEmail = "LOUIS.NEWTON@COMPANY.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAEHIxLYG94UqUhPPcBPUzh2B3F5ZNhRzD2/Vd6t2Y+lPiO5VeVE6JQuyIDFbwDeEXKQ==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "fb09937d-40b0-4999-ae4b-8c551449e296",
                             TwoFactorEnabled = false
@@ -441,16 +441,32 @@ namespace Repository.Migrations
                             Id = new Guid("fb874eba-9c48-4340-a690-bebb2195d379"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "be7e12e8-b4d4-4136-8be0-a022c5ae1b77",
-                            Email = "admin@admin.pt",
+                            Email = "admin@admin.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             Nome = "Admin",
-                            NormalizedEmail = "ADMIN@ADMIN.PT",
-                            PasswordHash = "AQAAAAIAAYagAAAAEKCqOA4Ilzwt3W3BSnRTmiTH4ahIz+YHJYBKCC8o/a/Mj4G0InEWw244yJamcd8tCA==",
+                            NormalizedEmail = "ADMIN@ADMIN.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAEH7iu6PoAJQmNEoWPRdtLkfXWt7kVQh1/CtyzK3VqFtqRukiMWiZN48vIxVd4R6dsw==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "8f15dade-0a81-4238-ae5c-cad2ca8d0aae",
                             TwoFactorEnabled = false
                         });
+                });
+
+            modelBuilder.Entity("backend.Entities.Models.SyncedTeamMembership", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TeamId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsLeader")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("UserId", "TeamId");
+
+                    b.ToTable("SyncedTeamMemberships");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>

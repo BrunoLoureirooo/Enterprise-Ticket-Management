@@ -7,6 +7,8 @@ namespace backend.Repository
 {
     public class RepositoryContext(DbContextOptions<RepositoryContext> options) : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>(options)
     {
+        public DbSet<SyncedTeamMembership> SyncedTeamMemberships { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -14,7 +16,7 @@ namespace backend.Repository
             modelBuilder.ApplyConfiguration(new RoleConfiguration());
             modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new UserRoleConfiguration());
+            modelBuilder.ApplyConfiguration(new SyncedTeamMembershipConfiguration());
         }
-
     }
 }

@@ -61,20 +61,59 @@ builder.Services.AddRateLimiter(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Named HttpClient for internal service aggregation (accepts self-signed certs for local dev)
+builder.Services.AddHttpClient("internal", client => { })
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+    });
+
 var app = builder.Build();
 
 app.UseCors("CorsPolicy");
 
 app.UseRateLimiter();
 
-// Swagger UI — aggregates docs from all services via YARP passthrough routes
+// Swagger UI — dynamically built from YARP clusters.
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/identity/v1/swagger.json", "Identity API");
+    var clusters = app.Configuration.GetSection("ReverseProxy:Clusters").GetChildren();
+    foreach (var cluster in clusters)
+    {
+        var name = cluster.Key.Replace("-cluster", "");
+        c.SwaggerEndpoint($"/swagger/{name}/v1/swagger.json", $"{name} API");
+    }
     c.RoutePrefix = "swagger";
 });
 
 app.UseMiddleware<GatewayAuthorizationMiddleware>();
+
+// Aggregate available permissions from all downstream services.
+app.MapGet("/api/permission", async (IConfiguration config, IHttpClientFactory httpClientFactory) =>
+{
+    var allPermissions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    using var client = httpClientFactory.CreateClient("internal");
+
+    var clusters = config.GetSection("ReverseProxy:Clusters").GetChildren();
+    foreach (var cluster in clusters)
+    {
+        foreach (var dest in cluster.GetSection("Destinations").GetChildren())
+        {
+            var address = dest["Address"];
+            if (string.IsNullOrEmpty(address)) continue;
+            try
+            {
+                var permissions = await client.GetFromJsonAsync<IEnumerable<string>>(
+                    $"{address.TrimEnd('/')}/api/Permission");
+                if (permissions != null)
+                    foreach (var p in permissions) allPermissions.Add(p);
+            }
+            catch { /* service unavailable, skip */ }
+        }
+    }
+
+    return Results.Ok(allPermissions.OrderBy(p => p));
+});
 
 // Map the reverse proxy endpoints
 app.MapReverseProxy();

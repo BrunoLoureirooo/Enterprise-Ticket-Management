@@ -82,6 +82,10 @@ resource "azurerm_container_app" "identity" {
         secret_name = "redis-connection-string"
       }
       env {
+        name        = "RabbitMQ__ConnectionString"
+        secret_name = "rabbitmq-connection-string"
+      }
+      env {
         name        = "Sentry__Dsn"
         secret_name = "sentry-dsn-identity"
       }
@@ -99,6 +103,10 @@ resource "azurerm_container_app" "identity" {
   secret {
     name  = "redis-connection-string"
     value = var.redis_connection_string
+  }
+  secret {
+    name  = "rabbitmq-connection-string"
+    value = var.rabbitmq_connection_string
   }
   secret {
     name  = "sentry-dsn-identity"
@@ -165,6 +173,14 @@ resource "azurerm_container_app" "gateway" {
         name  = "ReverseProxy__Clusters__identity-cluster__Destinations__destination1__Address"
         value = "http://${azurerm_container_app.identity.name}/"
       }
+      env {
+        name  = "ReverseProxy__Clusters__ticket-cluster__Destinations__destination1__Address"
+        value = "http://${azurerm_container_app.ticket.name}/"
+      }
+      env {
+        name  = "ReverseProxy__Clusters__teams-cluster__Destinations__destination1__Address"
+        value = "http://${azurerm_container_app.teams.name}/"
+      }
     }
   }
 
@@ -219,6 +235,134 @@ resource "azurerm_container_app" "frontend" {
   ingress {
     external_enabled = true
     target_port      = 80
+    traffic_weight {
+      percentage      = 100
+      latest_revision = true
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [template[0].container[0].image]
+  }
+}
+
+# Teams API
+resource "azurerm_container_app" "teams" {
+  name                         = "ca-teams"
+  container_app_environment_id = azurerm_container_app_environment.main.id
+  resource_group_name          = azurerm_resource_group.main.name
+  revision_mode                = "Single"
+
+  template {
+    container {
+      name   = "teams"
+      image  = "mcr.microsoft.com/azuredocs/containerapps-helloworld:latest"
+      cpu    = 0.25
+      memory = "0.5Gi"
+
+      env {
+        name  = "ASPNETCORE_ENVIRONMENT"
+        value = "Production"
+      }
+      env {
+        name  = "ASPNETCORE_URLS"
+        value = "http://+:8080"
+      }
+      env {
+        name        = "ConnectionStrings__DefaultConnection"
+        secret_name = "teams-db-connection-string"
+      }
+      env {
+        name        = "RabbitMQ__ConnectionString"
+        secret_name = "rabbitmq-connection-string"
+      }
+      env {
+        name        = "Sentry__Dsn"
+        secret_name = "sentry-dsn-teams"
+      }
+    }
+  }
+
+  secret {
+    name  = "teams-db-connection-string"
+    value = var.teams_db_connection_string
+  }
+  secret {
+    name  = "rabbitmq-connection-string"
+    value = var.rabbitmq_connection_string
+  }
+  secret {
+    name  = "sentry-dsn-teams"
+    value = var.sentry_dsn_teams
+  }
+
+  ingress {
+    external_enabled = false
+    target_port      = 8080
+    traffic_weight {
+      percentage      = 100
+      latest_revision = true
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [template[0].container[0].image]
+  }
+}
+
+# Ticket API
+resource "azurerm_container_app" "ticket" {
+  name                         = "ca-ticket"
+  container_app_environment_id = azurerm_container_app_environment.main.id
+  resource_group_name          = azurerm_resource_group.main.name
+  revision_mode                = "Single"
+
+  template {
+    container {
+      name   = "ticket"
+      image  = "mcr.microsoft.com/azuredocs/containerapps-helloworld:latest"
+      cpu    = 0.25
+      memory = "0.5Gi"
+
+      env {
+        name  = "ASPNETCORE_ENVIRONMENT"
+        value = "Production"
+      }
+      env {
+        name  = "ASPNETCORE_URLS"
+        value = "http://+:8080"
+      }
+      env {
+        name        = "ConnectionStrings__DefaultConnection"
+        secret_name = "ticket-db-connection-string"
+      }
+      env {
+        name        = "RabbitMQ__ConnectionString"
+        secret_name = "rabbitmq-connection-string"
+      }
+      env {
+        name        = "Sentry__Dsn"
+        secret_name = "sentry-dsn-ticket"
+      }
+    }
+  }
+
+  secret {
+    name  = "ticket-db-connection-string"
+    value = var.ticket_db_connection_string
+  }
+  secret {
+    name  = "rabbitmq-connection-string"
+    value = var.rabbitmq_connection_string
+  }
+  secret {
+    name  = "sentry-dsn-ticket"
+    value = var.sentry_dsn_ticket
+  }
+
+  ingress {
+    external_enabled = false
+    target_port      = 8080
     traffic_weight {
       percentage      = 100
       latest_revision = true
