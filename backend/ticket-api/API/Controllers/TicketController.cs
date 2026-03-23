@@ -13,6 +13,16 @@ namespace ticket.API.Controllers
             _service = service;
         }
 
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetStats()
+        {
+            var userId = GetUserId();
+            if (userId == Guid.Empty) return Unauthorized();
+
+            var stats = await _service.TicketService.GetStatsAsync(userId, IsAdmin());
+            return Ok(stats);
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {

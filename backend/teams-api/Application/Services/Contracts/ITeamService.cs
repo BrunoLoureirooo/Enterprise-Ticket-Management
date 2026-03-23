@@ -6,6 +6,7 @@ namespace teams.Application.Services.Contracts
     public interface ITeamService
     {
         Task<IEnumerable<TeamSummaryDto>> GetAllAsync();
+        Task<IEnumerable<TeamDto>> GetByLeaderAsync(Guid userId);
         Task<TeamDto?> GetByIdAsync(Guid id);
         Task<TeamDto> CreateAsync(CreateTeamDto dto);
         Task<TeamDto?> UpdateAsync(Guid id, UpdateTeamDto dto);

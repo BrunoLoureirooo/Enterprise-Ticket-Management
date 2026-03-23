@@ -6,6 +6,22 @@ namespace teams.API.Controllers
 {
     public class ProjectsController(IServiceManager service) : BaseApiController
     {
+        [HttpGet("mine")]
+        public async Task<IActionResult> GetMine()
+        {
+            var userId = GetUserId();
+            if (userId == Guid.Empty) return Unauthorized();
+
+            var ledTeams = await service.TeamService.GetByLeaderAsync(userId);
+            var projects = new List<teams.Entities.DataTransferObjects.Projects.ProjectDto>();
+            foreach (var team in ledTeams)
+            {
+                var teamProjects = await service.ProjectService.GetByTeamAsync(team.Id);
+                projects.AddRange(teamProjects);
+            }
+            return Ok(projects.DistinctBy(p => p.Id));
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] Guid? teamId)
         {

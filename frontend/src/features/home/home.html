@@ -1,1 +1,87 @@
-<p>home works!</p>
+<div class="w-full">
+  <div class="my-2">
+    <dx-toolbar>
+      <dxi-toolbar-item location="before">
+        <div *dxTemplate><b>Dashboard</b></div>
+      </dxi-toolbar-item>
+    </dx-toolbar>
+  </div>
+
+  <div class="p-4">
+    @if (loading()) {
+      <div class="flex justify-center items-center h-48">
+        <dx-load-indicator [visible]="true" height="40" width="40"></dx-load-indicator>
+      </div>
+    } @else {
+
+      <!-- Personal charts (all users) -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow p-4">
+          <dx-chart [dataSource]="unresolvedData" title="My Unresolved Tickets" style="width:100%" [size]="{ height: 300 }">
+            <dxi-series argumentField="label" valueField="count" type="bar" name="Tickets" color="#4f46e5"></dxi-series>
+            <dxi-value-axis [allowDecimals]="false"></dxi-value-axis>
+            <dxo-legend [visible]="false"></dxo-legend>
+            <dxo-tooltip [enabled]="true"></dxo-tooltip>
+          </dx-chart>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-4">
+          <dx-pie-chart [dataSource]="priorityData" title="My Tickets by Priority" style="width:100%" [size]="{ height: 300 }">
+            <dxi-series argumentField="label" valueField="count">
+              <dxo-label [visible]="true">
+                <dxo-connector [visible]="true"></dxo-connector>
+              </dxo-label>
+            </dxi-series>
+            <dxo-tooltip [enabled]="true"></dxo-tooltip>
+          </dx-pie-chart>
+        </div>
+      </div>
+
+      <!-- Team leader / admin section -->
+      @if (isTeamLeader || isAdmin) {
+        <div class="bg-white rounded-lg shadow p-4 mb-6">
+          <dx-chart [dataSource]="teamUrgencyData" title="Team Unresolved Tickets by Urgency" style="width:100%" [size]="{ height: 300 }">
+            <dxi-series argumentField="label" valueField="count" type="bar" name="Tickets" color="#dc2626"></dxi-series>
+            <dxi-value-axis [allowDecimals]="false"></dxi-value-axis>
+            <dxo-legend [visible]="false"></dxo-legend>
+            <dxo-tooltip [enabled]="true"></dxo-tooltip>
+          </dx-chart>
+        </div>
+
+        @if (teams().length > 0) {
+          <h2 class="text-lg font-semibold mb-4">My Teams</h2>
+          <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+            @for (team of teams(); track team.id) {
+              <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="font-semibold text-base">{{ team.name }}</h3>
+                  <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                    {{ team.members?.length ?? 0 }} member{{ (team.members?.length ?? 0) !== 1 ? 's' : '' }}
+                  </span>
+                </div>
+                @if (team.description) {
+                  <p class="text-sm text-gray-500 mb-3">{{ team.description }}</p>
+                }
+                <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">Projects</p>
+                @let teamProjects = projectsForTeam(team.id);
+                @if (teamProjects.length === 0) {
+                  <p class="text-sm text-gray-400 italic">No projects</p>
+                } @else {
+                  <ul class="space-y-1">
+                    @for (project of teamProjects; track project.id) {
+                      <li class="text-sm text-gray-700 flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 flex-shrink-0"></span>
+                        {{ project.name }}
+                      </li>
+                    }
+                  </ul>
+                }
+              </div>
+            }
+          </div>
+        }
+      }
+
+    }
+  </div>
+</div>

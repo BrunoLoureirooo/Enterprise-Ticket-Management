@@ -9,6 +9,13 @@ namespace teams.Repository
         public async Task<IEnumerable<Team>> GetAllAsync() =>
             await context.Teams.Include(t => t.Members).ThenInclude(m => m.User).OrderBy(t => t.Name).ToListAsync();
 
+        public async Task<IEnumerable<Team>> GetByLeaderAsync(Guid userId) =>
+            await context.Teams
+                .Include(t => t.Members).ThenInclude(m => m.User)
+                .Where(t => t.Members.Any(m => m.UserId == userId && m.IsLeader))
+                .OrderBy(t => t.Name)
+                .ToListAsync();
+
         public async Task<Team?> GetByIdAsync(Guid id) =>
             await context.Teams.Include(t => t.Members).ThenInclude(m => m.User).FirstOrDefaultAsync(t => t.Id == id);
 

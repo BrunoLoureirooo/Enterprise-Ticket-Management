@@ -166,6 +166,10 @@ namespace gateway_api.API.Middleware
             if (parts.Length < 2) return null;
             if (!parts[0].Equals("api", StringComparison.OrdinalIgnoreCase)) return null;
 
+            // /api/{resource}/mine routes are user-scoped — auth required, no extra permission
+            if (parts.Length >= 3 && parts[2].Equals("mine", StringComparison.OrdinalIgnoreCase))
+                return null;
+
             var resource = parts[1].ToLower();
 
             return method.ToUpper() switch

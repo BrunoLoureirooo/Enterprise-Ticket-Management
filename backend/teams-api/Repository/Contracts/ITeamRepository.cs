@@ -5,6 +5,7 @@ namespace teams.Repository.Contracts
     public interface ITeamRepository
     {
         Task<IEnumerable<Team>> GetAllAsync();
+        Task<IEnumerable<Team>> GetByLeaderAsync(Guid userId);
         Task<Team?> GetByIdAsync(Guid id);
         Task<TeamMember?> GetMemberAsync(Guid teamId, Guid userId);
         void Create(Team team);

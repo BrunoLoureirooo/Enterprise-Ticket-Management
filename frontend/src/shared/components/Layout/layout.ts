@@ -47,7 +47,7 @@ export class Layout {
       { id: 6, text: 'Teams', icon: 'bi bi-diagram-3', path: '/teams', permission: 'teams.read' },
     ].filter(item => {
       if (item.leaderOrAdminOnly && !isAdmin && !isTeamLeader) return false;
-      return item.permission === null || isAdmin || isTeamLeader || permissions.includes(item.permission!);
+      return item.permission === null || isAdmin || permissions.includes(item.permission!);
     });
   }
 

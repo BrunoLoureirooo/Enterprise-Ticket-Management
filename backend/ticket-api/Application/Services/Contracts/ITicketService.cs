@@ -5,6 +5,7 @@ namespace ticket.Application.Services.Contracts
     public interface ITicketService
     {
         Task<IEnumerable<TicketDto>> GetAllAsync();
+        Task<TicketStatsDto> GetStatsAsync(Guid userId, bool isAdmin);
         Task<IEnumerable<TicketDto>> GetScopedAsync(Guid userId);
         Task<IEnumerable<TicketDto>> GetByUserAsync(Guid userId);
         Task<TicketDto?> GetByIdAsync(Guid id);

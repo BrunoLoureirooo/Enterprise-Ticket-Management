@@ -17,6 +17,12 @@ namespace teams.Application.Services
             return mapper.Map<IEnumerable<TeamSummaryDto>>(teams);
         }
 
+        public async Task<IEnumerable<TeamDto>> GetByLeaderAsync(Guid userId)
+        {
+            var teams = await repository.Team.GetByLeaderAsync(userId);
+            return mapper.Map<IEnumerable<TeamDto>>(teams);
+        }
+
         public async Task<TeamDto?> GetByIdAsync(Guid id)
         {
             var team = await repository.Team.GetByIdAsync(id);

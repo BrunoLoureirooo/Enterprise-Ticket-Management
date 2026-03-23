@@ -128,5 +128,67 @@ namespace ticket.Application.Services
             await repository.SaveAsync();
             return true;
         }
+
+        public async Task<TicketStatsDto> GetStatsAsync(Guid userId, bool isAdmin)
+        {
+            var unresolved = new[] { TicketStatus.Open, TicketStatus.InProgress };
+
+            if (isAdmin)
+            {
+                var allTickets   = (await repository.Ticket.GetAllAsync()).ToList();
+                var allUnresolved = allTickets.Where(t => unresolved.Contains(t.Status)).ToList();
+
+                return new TicketStatsDto
+                {
+                    UnresolvedByStatus = allUnresolved
+                        .GroupBy(t => t.Status.ToString())
+                        .Select(g => new StatusCountDto { Status = g.Key, Count = g.Count() })
+                        .ToList(),
+                    ByPriority = allTickets
+                        .GroupBy(t => t.Priority.ToString())
+                        .Select(g => new PriorityCountDto { Priority = g.Key, Count = g.Count() })
+                        .ToList(),
+                    TeamUnresolvedByPriority = allUnresolved
+                        .GroupBy(t => t.Priority.ToString())
+                        .Select(g => new PriorityCountDto { Priority = g.Key, Count = g.Count() })
+                        .ToList(),
+                    IsTeamLeader = false,
+                    IsAdmin      = true,
+                };
+            }
+
+            var memberships  = await repository.TeamMembership.GetByUserAsync(userId);
+            var ledTeamIds   = memberships.Where(m => m.IsLeader).Select(m => m.TeamId).ToList();
+            var isTeamLeader = ledTeamIds.Count > 0;
+
+            var myTickets    = (await repository.Ticket.GetByUserAsync(userId)).ToList();
+            var myUnresolved = myTickets.Where(t => unresolved.Contains(t.Status)).ToList();
+
+            List<PriorityCountDto>? teamUnresolvedByPriority = null;
+            if (isTeamLeader)
+            {
+                var teamTickets = (await repository.Ticket.GetByTeamsAsync(ledTeamIds)).ToList();
+                teamUnresolvedByPriority = teamTickets
+                    .Where(t => unresolved.Contains(t.Status))
+                    .GroupBy(t => t.Priority.ToString())
+                    .Select(g => new PriorityCountDto { Priority = g.Key, Count = g.Count() })
+                    .ToList();
+            }
+
+            return new TicketStatsDto
+            {
+                UnresolvedByStatus = myUnresolved
+                    .GroupBy(t => t.Status.ToString())
+                    .Select(g => new StatusCountDto { Status = g.Key, Count = g.Count() })
+                    .ToList(),
+                ByPriority = myTickets
+                    .GroupBy(t => t.Priority.ToString())
+                    .Select(g => new PriorityCountDto { Priority = g.Key, Count = g.Count() })
+                    .ToList(),
+                TeamUnresolvedByPriority = teamUnresolvedByPriority,
+                IsTeamLeader             = isTeamLeader,
+                IsAdmin                  = false,
+            };
+        }
     }
 }

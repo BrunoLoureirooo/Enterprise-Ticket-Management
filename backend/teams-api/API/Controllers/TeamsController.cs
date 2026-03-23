@@ -14,6 +14,15 @@ namespace teams.API.Controllers
             return Ok(teams);
         }
 
+        [HttpGet("mine")]
+        public async Task<IActionResult> GetMine()
+        {
+            var userId = GetUserId();
+            if (userId == Guid.Empty) return Unauthorized();
+            var teams = await service.TeamService.GetByLeaderAsync(userId);
+            return Ok(teams);
+        }
+
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetById(Guid id)
         {

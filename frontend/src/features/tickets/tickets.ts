@@ -16,10 +16,12 @@ export class Tickets implements OnInit {
   private toastService = inject(ToastService);
   private authService = inject(AuthService);
 
-  private has = (p: string) => {
-    const u = this.authService.getCurrentUser();
-    return u?.role === 'Admin' || u?.isTeamLeader === true || (u?.permissions ?? []).includes(p);
-  };
+  private currentUser = this.authService.getCurrentUser();
+  private isAdmin = this.currentUser?.role === 'Admin';
+  private isTeamLeader = this.currentUser?.isTeamLeader ?? false;
+
+  private has = (p: string) =>
+    this.isAdmin || this.isTeamLeader || (this.currentUser?.permissions ?? []).includes(p);
 
   protected canCreate = this.has('ticket.create');
   protected canUpdate = this.has('ticket.update');
@@ -34,6 +36,9 @@ export class Tickets implements OnInit {
   protected selectedProjectId = signal<string | null>(null);
   protected selectedAssigneeId = signal<string | null>(null);
   protected loading = signal(true);
+
+  // Cache of full team objects (with members) for team leaders
+  private teamsWithMembers: any[] = [];
 
   readonly statusOptions = ['Open', 'InProgress', 'Resolved', 'Closed'];
   readonly priorityOptions = ['Low', 'Medium', 'High', 'Critical'];
@@ -73,19 +78,32 @@ export class Tickets implements OnInit {
 
   async loadTeams() {
     try {
-      const data = await lastValueFrom(this.http.get<any[]>('/api/Teams'));
-      this.teams.set(data);
+      if (this.isAdmin) {
+        const data = await lastValueFrom(this.http.get<any[]>('/api/Teams'));
+        this.teams.set(data);
+      } else {
+        // Team leaders: scoped endpoint returns TeamDto with full members list
+        const data = await lastValueFrom(this.http.get<any[]>('/api/Teams/mine'));
+        this.teamsWithMembers = data;
+        this.teams.set(data);
+      }
     } catch {}
   }
 
   async loadProjects() {
     try {
-      const data = await lastValueFrom(this.http.get<any[]>('/api/Projects'));
+      const endpoint = this.isAdmin ? '/api/Projects' : '/api/Projects/mine';
+      const data = await lastValueFrom(this.http.get<any[]>(endpoint));
       this.projects.set(data);
     } catch {}
   }
 
   async loadTeamMembers(teamId: string) {
+    if (!this.isAdmin && this.teamsWithMembers.length > 0) {
+      const team = this.teamsWithMembers.find(t => t.id === teamId);
+      this.teamMembers.set(team?.members ?? []);
+      return;
+    }
     try {
       const team = await lastValueFrom(this.http.get<any>(`/api/Teams/${teamId}`));
       this.teamMembers.set(team.members ?? []);

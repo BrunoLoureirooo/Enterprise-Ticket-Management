@@ -18,7 +18,8 @@ Enterprise Ticket Management — an internal web application for managing operat
 ## Features
 
 - **User Authentication**:
-  - Secure login system with role-based access control (Admin, TeamLeader, Technician) [Implemented]
+  - Secure login system with role-based access control (Admin, Manager, Employee) [Implemented]
+  - Team leader is a per-membership flag, not a separate role — grants scoped elevated access [Implemented]
   - User registration with validation [Implemented]
   - User management API [Implemented]
   - Redis-based token revocation — logout invalidates token server-side [Implemented]
@@ -27,6 +28,7 @@ Enterprise Ticket Management — an internal web application for managing operat
   - YARP gateway middleware validates JWTs and enforces `permissions` claims per route [Implemented]
   - Admin role bypasses all permission checks [Implemented]
   - JWT with claims — roles carry granular permission claims seeded via EF Core [Implemented]
+  - `/mine` scoped routes (e.g. `GET /api/Teams/mine`, `GET /api/Projects/mine`) require auth only — no extra permission claim needed [Implemented]
   - Frontend sidebar tabs conditionally shown based on role/permissions [Implemented]
   - Permission hash caching via Redis — detects stale permissions mid-session [Implemented]
   - Role management API — CRUD operations for roles and permission assignments [Implemented]
@@ -46,7 +48,15 @@ Enterprise Ticket Management — an internal web application for managing operat
   - Role-scoped visibility:
     - **Admin** — full ticket list
     - **Team Leader** — all tickets in their team(s) + tickets assigned to them directly
-    - **Regular Employee** — personal assigned tickets only (`/my-tickets`)
+    - **Employee** — personal assigned tickets only (`/my-tickets`)
+  - Edit and delete actions on the ticket grid are gated behind `tickets.update` / `tickets.delete` permissions [Implemented]
+  - Team leaders can create tickets for their teams and projects without needing global `teams.read`/`projects.read` permissions — scoped data loaded via `/mine` endpoints [Implemented]
+
+- **Dashboard**: [Implemented]
+  - Role-aware statistics loaded on login:
+    - **Employee** — bar chart of personal unresolved tickets by status; pie chart of personal tickets by priority
+    - **Team Leader** — above personal charts plus team-wide unresolved tickets broken down by urgency; team cards listing assigned projects
+    - **Admin** — platform-wide equivalents of all charts
 
 - **Assignment & Workflow**: [Implemented]
   - Tickets are assigned to a team member on creation
@@ -225,18 +235,18 @@ Enterprise-Ticket-Management/
 │   │       └── Configuration/   # EF Core seed configs (Roles, Users, Claims)
 │   │
 │   ├── ticket-api/              # Ticket Lifecycle Service
-│   │   ├── API/Controllers/     # TicketController
+│   │   ├── API/Controllers/     # TicketController (incl. GET /stats, role-aware)
 │   │   ├── Application/
-│   │   │   ├── Services/        # TicketService (role-scoped GetScopedAsync)
+│   │   │   ├── Services/        # TicketService (role-scoped GetScopedAsync, GetStatsAsync)
 │   │   │   └── Messaging/       # UserSyncConsumer, TeamMembershipConsumer,
 │   │   │                        # TeamSyncConsumer, ProjectSyncConsumer
 │   │   ├── Entities/Models/     # Ticket, TeamMembership, SyncedUser/Team/Project
 │   │   └── Repository/
 │   │
 │   └── teams-api/               # Teams & Projects Service
-│       ├── API/Controllers/     # TeamController, ProjectController
+│       ├── API/Controllers/     # TeamsController (incl. GET /mine), ProjectsController (incl. GET /mine)
 │       ├── Application/
-│       │   ├── Services/        # TeamService, ProjectService
+│       │   ├── Services/        # TeamService (incl. GetByLeaderAsync), ProjectService
 │       │   └── Messaging/       # RabbitMqPublisher, UserSyncConsumer
 │       ├── Entities/Models/     # Team, TeamMember, Project, ProjectTeam, SyncedUser
 │       └── Repository/
@@ -251,7 +261,7 @@ Enterprise-Ticket-Management/
 │       ├── features/            # Lazy-loaded pages
 │       │   ├── auth/login/      # [Implemented]
 │       │   ├── auth/register/   # [Implemented]
-│       │   ├── home/            # [Placeholder]
+│       │   ├── home/            # Role-aware dashboard with charts [Implemented]
 │       │   ├── tickets/         # Full ticket grid — admin + team leaders [Implemented]
 │       │   │   └── my-tickets/  # Personal assigned tickets — all users [Implemented]
 │       │   ├── teams/           # Teams & Projects management (tabbed) [Implemented]
@@ -287,7 +297,7 @@ Enterprise-Ticket-Management/
 | Page | Status |
 |---|---|
 | Login / Register | **Done** |
-| Dashboard / Home | Placeholder |
+| Dashboard / Home | **Done** |
 | Tickets (admin + team leaders) | **Done** |
 | My Tickets (all users) | **Done** |
 | Teams & Projects | **Done** |
