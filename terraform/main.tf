@@ -74,7 +74,7 @@ resource "azurerm_container_app" "identity" {
         value = "TicketManagementClient"
       }
       env {
-        name  = "JwtSettings__ExpiryMinutes"
+        name  = "JwtSettings__Expires"
         value = "60"
       }
       env {
